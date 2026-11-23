@@ -47,6 +47,7 @@ body.galway-anim-enabled .elementor-button {
 	font-family: 'Avenir', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
 }
 
+html:has(body.galway-anim-enabled),
 body.galway-anim-enabled,
 body.galway-anim-enabled .pin-spacer {
 	background-color: #031d36;
@@ -146,11 +147,26 @@ body.galway-anim-enabled:not(.elementor-editor-active) .g-e1203d2.journeys-activ
 }
 
 /* 5. Acordeón Horizontal: EXPLORE · DISCOVER · LEARN */
+.gw-pillars-track {
+	position: relative;
+	height: 240vh;
+	background-color: #031d36;
+}
+
 .gw-pillars,
 .g-4b09dba {
 	display: flex;
 	width: 100%;
 	min-height: 100vh;
+}
+
+@media (min-width: 1025px) {
+	.gw-pillars-track > .gw-pillars,
+	.gw-pillars-track > .g-4b09dba {
+		position: sticky;
+		top: 0;
+		height: 100vh;
+	}
 }
 
 .gw-pillar,

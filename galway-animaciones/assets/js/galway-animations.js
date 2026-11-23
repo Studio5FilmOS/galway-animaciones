@@ -297,64 +297,64 @@
 			drawParticles();
 		}
 
-		// 2. Animación orgánica e interactiva del Lobo Marino PNG
+		// 2. Animación orgánica, rápida y muy notoria del Lobo Marino PNG
 		var seaLion = oceanScene.querySelector('.gw-sealion-swim, .g-6b29333');
 		if (seaLion) {
-			// Trayectoria curva de nado ligada al scroll (siempre visible, sin opacidad baja)
+			// Trayectoria amplia ligada al scroll
 			gsap.fromTo(
 				seaLion,
-				{ x: 50, y: 30, rotation: -6, scale: 0.95 },
+				{ x: 80, y: 45, rotation: -8, scale: 0.94 },
 				{
-					x: -20,
-					y: -25,
-					rotation: 3,
-					scale: 1.06,
+					x: -45,
+					y: -40,
+					rotation: 4,
+					scale: 1.14,
 					ease: 'none',
 					scrollTrigger: {
 						trigger: oceanScene,
-						start: 'top 90%',
-						end: 'bottom 10%',
-						scrub: 1
+						start: 'top 95%',
+						end: 'bottom 5%',
+						scrub: 0.8
 					}
 				}
 			);
 
-			// Movimiento continuo de flotación hidrodinámica en el agua
+			// Movimiento continuo de nado rápido y fluido en el agua
 			var seaLionImg = seaLion.querySelector('img') || seaLion;
 			gsap.to(seaLionImg, {
-				y: -14,
-				duration: 2.5,
+				y: -26,
+				duration: 1.4,
 				ease: 'sine.inOut',
 				repeat: -1,
 				yoyo: true
 			});
 
 			gsap.to(seaLionImg, {
-				rotation: 3.5,
-				duration: 3.2,
+				rotation: 6,
+				duration: 1.75,
 				ease: 'sine.inOut',
 				repeat: -1,
 				yoyo: true,
-				delay: 0.4
+				delay: 0.2
 			});
 
-			// Seguimiento fluido al mover el mouse dentro de la escena del mar
-			var quickX = gsap.quickTo(seaLionImg, 'x', { duration: 0.8, ease: 'power3.out' });
-			var quickScale = gsap.quickTo(seaLionImg, 'scale', { duration: 0.5, ease: 'power2.out' });
+			// Seguimiento rápido y notorio al mover el mouse dentro de la escena
+			var quickX = gsap.quickTo(seaLionImg, 'x', { duration: 0.45, ease: 'power2.out' });
+			var quickScale = gsap.quickTo(seaLionImg, 'scale', { duration: 0.35, ease: 'back.out(1.7)' });
 
 			oceanScene.addEventListener('mousemove', function (e) {
 				var rect = oceanScene.getBoundingClientRect();
 				var relX = (e.clientX - rect.left) / rect.width - 0.5;
-				quickX(relX * -36);
+				quickX(relX * -75);
 			});
 
-			// Reacción juguetona al pasar el mouse directamente sobre el lobo marino
+			// Reacción juguetona e inmediata al topar/pasar el mouse sobre la foca
 			seaLion.addEventListener('mouseenter', function () {
-				quickScale(1.1);
+				quickScale(1.18);
 				gsap.to(seaLionImg, {
-					rotation: -7,
-					duration: 0.45,
-					ease: 'back.out(1.7)',
+					rotation: -12,
+					duration: 0.35,
+					ease: 'back.out(2)',
 					overwrite: 'auto'
 				});
 			});
@@ -362,8 +362,8 @@
 			seaLion.addEventListener('mouseleave', function () {
 				quickScale(1);
 				gsap.to(seaLionImg, {
-					rotation: 3.5,
-					duration: 0.7,
+					rotation: 6,
+					duration: 0.55,
 					ease: 'sine.inOut',
 					overwrite: 'auto'
 				});
@@ -465,14 +465,16 @@
 			});
 		}
 
+		// Envolver en un track CSS sticky para evitar saltos o pantallazos blancos de GSAP pin
+		var track = document.createElement('div');
+		track.className = 'gw-pillars-track';
+		pillarsWrap.parentNode.insertBefore(track, pillarsWrap);
+		track.appendChild(pillarsWrap);
+
 		ScrollTrigger.create({
-			trigger: pillarsWrap,
+			trigger: track,
 			start: 'top top',
-			end: '+=160%',
-			pin: true,
-			pinSpacing: true,
-			anticipatePin: 1,
-			invalidateOnRefresh: true,
+			end: 'bottom bottom',
 			onEnter: function () {
 				setActivePillar(0);
 			},
@@ -487,7 +489,7 @@
 				}
 			},
 			onLeave: function () {
-				setActivePillar(-1);
+				setActivePillar(2);
 			},
 			onLeaveBack: function () {
 				setActivePillar(-1);
