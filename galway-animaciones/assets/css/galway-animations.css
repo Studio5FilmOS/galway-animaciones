@@ -47,6 +47,11 @@ body.galway-anim-enabled .elementor-button {
 	font-family: 'Avenir', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
 }
 
+body.galway-anim-enabled,
+body.galway-anim-enabled .pin-spacer {
+	background-color: #031d36;
+}
+
 /* 1. Lenis Smooth Scroll */
 html.lenis,
 html.lenis body {
@@ -297,7 +302,8 @@ body.galway-anim-enabled:not(.elementor-editor-active) .g-e1203d2.journeys-activ
 .gw-sealion-swim,
 .g-6b29333 {
 	will-change: transform;
-	pointer-events: none;
+	pointer-events: auto;
+	cursor: pointer;
 	filter: drop-shadow(0 24px 36px rgba(1, 14, 30, 0.45));
 }
 

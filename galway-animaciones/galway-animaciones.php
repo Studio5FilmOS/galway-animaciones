@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Galway Animaciones Inmersivas
  * Description: Motor ligero de animaciones inmersivas (Lenis Smooth Scroll, GSAP ScrollTrigger, acordeón de pilares, menú overlay y entorno submarino) 100% compatible con Elementor Gratuito y Astra.
- * Version: 1.4.0
+ * Version: 1.5.0
  * Author: Studio 5 - Jesse Añazco
  * License: GPL-2.0+
  * Text Domain: galway-animaciones
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'GALWAY_ANIM_VERSION', '1.4.0' );
+define( 'GALWAY_ANIM_VERSION', '1.5.0' );
 define( 'GALWAY_ANIM_URL', plugin_dir_url( __FILE__ ) );
 
 /**
