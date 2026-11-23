@@ -146,27 +146,12 @@ body.galway-anim-enabled:not(.elementor-editor-active) .g-e1203d2.journeys-activ
 	pointer-events: auto;
 }
 
-/* 5. Acordeón Horizontal: EXPLORE · DISCOVER · LEARN */
-.gw-pillars-track {
-	position: relative;
-	height: 240vh;
-	background-color: #031d36;
-}
-
+/* 5. Acordeón Horizontal: EXPLORE · DISCOVER · LEARN (Solo controlado por scroll, sin conflicto de hover) */
 .gw-pillars,
 .g-4b09dba {
 	display: flex;
 	width: 100%;
 	min-height: 100vh;
-}
-
-@media (min-width: 1025px) {
-	.gw-pillars-track > .gw-pillars,
-	.gw-pillars-track > .g-4b09dba {
-		position: sticky;
-		top: 0;
-		height: 100vh;
-	}
 }
 
 .gw-pillar,
@@ -183,19 +168,15 @@ body.galway-anim-enabled:not(.elementor-editor-active) .g-e1203d2.journeys-activ
 	}
 
 	.gw-pillars.has-active-pillar .gw-pillar,
-	.g-4b09dba.has-active-pillar .g-4913cbe,
-	.gw-pillars:hover .gw-pillar,
-	.g-4b09dba:hover .g-4913cbe {
-		flex-grow: 0.68 !important;
-		filter: brightness(0.82);
+	.g-4b09dba.has-active-pillar .g-4913cbe {
+		flex-grow: 0.72 !important;
+		filter: brightness(0.84);
 	}
 
 	.gw-pillars .gw-pillar.is-active-pillar,
-	.g-4b09dba .g-4913cbe.is-active-pillar,
-	.gw-pillars .gw-pillar:hover,
-	.g-4b09dba .g-4913cbe:hover {
-		flex-grow: 1.85 !important;
-		filter: brightness(1.04);
+	.g-4b09dba .g-4913cbe.is-active-pillar {
+		flex-grow: 1.75 !important;
+		filter: brightness(1.05);
 	}
 
 	.gw-pillar .gw-pillar-desc,
@@ -206,14 +187,12 @@ body.galway-anim-enabled:not(.elementor-editor-active) .g-e1203d2.journeys-activ
 	}
 
 	.gw-pillar.is-active-pillar .gw-pillar-desc,
-	.g-4913cbe.is-active-pillar .g-08a5884,
-	.gw-pillar:hover .gw-pillar-desc,
-	.g-4913cbe:hover .g-08a5884 {
+	.g-4913cbe.is-active-pillar .g-08a5884 {
 		opacity: 1;
 		transform: translateY(0);
 	}
 
-	/* Video loop al activarse por scroll o hover dentro de cada pilar */
+	/* Video loop al activarse por scroll dentro de cada pilar */
 	.gw-pillar .elementor-background-video-container,
 	.gw-pillar .elementor-widget-e-self-hosted-video,
 	.gw-pillar video,
@@ -239,13 +218,7 @@ body.galway-anim-enabled:not(.elementor-editor-active) .g-e1203d2.journeys-activ
 	.gw-pillar.is-active-pillar video,
 	.g-4913cbe.is-active-pillar .elementor-background-video-container,
 	.g-4913cbe.is-active-pillar .elementor-widget-e-self-hosted-video,
-	.g-4913cbe.is-active-pillar video,
-	.gw-pillar:hover .elementor-background-video-container,
-	.gw-pillar:hover .elementor-widget-e-self-hosted-video,
-	.gw-pillar:hover video,
-	.g-4913cbe:hover .elementor-background-video-container,
-	.g-4913cbe:hover .elementor-widget-e-self-hosted-video,
-	.g-4913cbe:hover video {
+	.g-4913cbe.is-active-pillar video {
 		opacity: 1 !important;
 	}
 }

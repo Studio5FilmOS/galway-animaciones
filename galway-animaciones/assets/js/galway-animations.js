@@ -297,18 +297,18 @@
 			drawParticles();
 		}
 
-		// 2. Animación orgánica, rápida y muy notoria del Lobo Marino PNG
+		// 2. Animación fluida, sin conflictos y muy notoria del Lobo Marino PNG
 		var seaLion = oceanScene.querySelector('.gw-sealion-swim, .g-6b29333');
 		if (seaLion) {
-			// Trayectoria amplia ligada al scroll
+			// Trayectoria amplia ligada al scroll en el contenedor exterior
 			gsap.fromTo(
 				seaLion,
-				{ x: 80, y: 45, rotation: -8, scale: 0.94 },
+				{ x: 90, y: 35, rotation: -6, scale: 0.96 },
 				{
-					x: -45,
-					y: -40,
+					x: -40,
+					y: -35,
 					rotation: 4,
-					scale: 1.14,
+					scale: 1.12,
 					ease: 'none',
 					scrollTrigger: {
 						trigger: oceanScene,
@@ -319,54 +319,52 @@
 				}
 			);
 
-			// Movimiento continuo de nado rápido y fluido en el agua
+			// Nado continuo en la imagen interior (y + rotación + flexión corporal)
 			var seaLionImg = seaLion.querySelector('img') || seaLion;
 			gsap.to(seaLionImg, {
-				y: -26,
-				duration: 1.4,
+				y: -22,
+				duration: 1.25,
 				ease: 'sine.inOut',
 				repeat: -1,
 				yoyo: true
 			});
 
 			gsap.to(seaLionImg, {
-				rotation: 6,
-				duration: 1.75,
+				rotation: 7,
+				duration: 1.55,
 				ease: 'sine.inOut',
 				repeat: -1,
 				yoyo: true,
 				delay: 0.2
 			});
 
-			// Seguimiento rápido y notorio al mover el mouse dentro de la escena
+			gsap.to(seaLionImg, {
+				scaleX: 1.03,
+				scaleY: 0.97,
+				duration: 1.1,
+				ease: 'sine.inOut',
+				repeat: -1,
+				yoyo: true
+			});
+
+			// Seguimiento suave del mouse usando quickTo (sin chocar con rotación ni nado vertical)
 			var quickX = gsap.quickTo(seaLionImg, 'x', { duration: 0.45, ease: 'power2.out' });
-			var quickScale = gsap.quickTo(seaLionImg, 'scale', { duration: 0.35, ease: 'back.out(1.7)' });
+			var quickHoverScale = gsap.quickTo(seaLionImg, 'scale', { duration: 0.35, ease: 'back.out(1.8)' });
 
 			oceanScene.addEventListener('mousemove', function (e) {
 				var rect = oceanScene.getBoundingClientRect();
 				var relX = (e.clientX - rect.left) / rect.width - 0.5;
-				quickX(relX * -75);
+				quickX(relX * -80);
 			});
 
-			// Reacción juguetona e inmediata al topar/pasar el mouse sobre la foca
+			// Impulso al topar directamente con el mouse
 			seaLion.addEventListener('mouseenter', function () {
-				quickScale(1.18);
-				gsap.to(seaLionImg, {
-					rotation: -12,
-					duration: 0.35,
-					ease: 'back.out(2)',
-					overwrite: 'auto'
-				});
+				quickHoverScale(1.16);
+				quickX(-30);
 			});
 
 			seaLion.addEventListener('mouseleave', function () {
-				quickScale(1);
-				gsap.to(seaLionImg, {
-					rotation: 6,
-					duration: 0.55,
-					ease: 'sine.inOut',
-					overwrite: 'auto'
-				});
+				quickHoverScale(1);
 			});
 		}
 	}
@@ -465,16 +463,11 @@
 			});
 		}
 
-		// Envolver en un track CSS sticky para evitar saltos o pantallazos blancos de GSAP pin
-		var track = document.createElement('div');
-		track.className = 'gw-pillars-track';
-		pillarsWrap.parentNode.insertBefore(track, pillarsWrap);
-		track.appendChild(pillarsWrap);
-
+		// Flujo natural sin sticky/pin para eliminar cualquier salto al salir de la sección
 		ScrollTrigger.create({
-			trigger: track,
-			start: 'top top',
-			end: 'bottom bottom',
+			trigger: pillarsWrap,
+			start: 'top 75%',
+			end: 'bottom 25%',
 			onEnter: function () {
 				setActivePillar(0);
 			},
@@ -489,7 +482,7 @@
 				}
 			},
 			onLeave: function () {
-				setActivePillar(2);
+				setActivePillar(-1);
 			},
 			onLeaveBack: function () {
 				setActivePillar(-1);
@@ -498,30 +491,18 @@
 	}
 
 	/**
-	 * Reproduce videos de pilares también en hover y pausa videos fuera de pantalla.
+	 * Pausa videos de escenas cuando salen de pantalla (sin eventos hover en pilares).
 	 */
 	function initSmartVideos() {
-		// Pilares: video en hover (desktop)
+		// Pausar videos de pilares al inicio (los controla únicamente el scroll)
 		var pillars = document.querySelectorAll('.gw-pillar, .g-4913cbe');
 		pillars.forEach(function (pillar) {
 			var vid = pillar.querySelector('video');
 			if (!vid) return;
-
 			vid.muted = true;
 			vid.loop = true;
 			vid.playsInline = true;
 			vid.pause();
-
-			pillar.addEventListener('mouseenter', function () {
-				var playPromise = vid.play();
-				if (playPromise && typeof playPromise.catch === 'function') {
-					playPromise.catch(function () {});
-				}
-			});
-
-			pillar.addEventListener('mouseleave', function () {
-				vid.pause();
-			});
 		});
 
 		// Pausar videos de escenas cuando no están visibles en pantalla
