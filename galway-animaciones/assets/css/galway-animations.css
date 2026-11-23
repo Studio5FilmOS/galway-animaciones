@@ -1,0 +1,428 @@
+/* ==========================================================================
+   Galway Animaciones Inmersivas v1.1.0
+   Compatible con Elementor Gratuito + Astra + Fuente Avenir
+   ========================================================================== */
+
+/* 0. Fuente Corporativa Avenir */
+@font-face {
+	font-family: 'Avenir';
+	src: url('../fonts/Avenir-Light.ttf') format('truetype');
+	font-weight: 300;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Avenir';
+	src: url('../fonts/Avenir-Roman.ttf') format('truetype');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Avenir';
+	src: url('../fonts/Avenir-Medium.ttf') format('truetype');
+	font-weight: 500;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Avenir';
+	src: url('../fonts/Avenir-Heavy.ttf') format('truetype');
+	font-weight: 700;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Avenir';
+	src: url('../fonts/Avenir-Black.ttf') format('truetype');
+	font-weight: 900;
+	font-style: normal;
+	font-display: swap;
+}
+
+body.galway-anim-enabled,
+body.galway-anim-enabled .elementor-widget-heading .elementor-heading-title,
+body.galway-anim-enabled .elementor-widget-text-editor,
+body.galway-anim-enabled .elementor-button {
+	font-family: 'Avenir', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+}
+
+/* 1. Lenis Smooth Scroll */
+html.lenis,
+html.lenis body {
+	height: auto;
+}
+
+.lenis.lenis-smooth {
+	scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+	overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+	overflow: clip;
+}
+
+/* 2. Escenas de pantalla completa (100vh) */
+.gw-scene,
+.g-ede2985 {
+	min-height: 100vh;
+	position: relative;
+	overflow: hidden;
+}
+
+/* 3. Header Glassmorphism al hacer scroll */
+.gw-header-glass,
+.g-112c2c1 {
+	transition: background-color 0.4s ease, backdrop-filter 0.4s ease, padding 0.4s ease;
+}
+
+.gw-header-glass.is-scrolled,
+.g-112c2c1.is-scrolled {
+	background-color: rgba(6, 28, 48, 0.55) !important;
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+}
+
+/* 4. Menú Sánduche Overlay + Panel Journeys (Solo oculto en frontend) */
+body.galway-anim-enabled:not(.elementor-editor-active) .gw-menu-overlay,
+body.galway-anim-enabled:not(.elementor-editor-active) .g-e1203d2 {
+	position: fixed !important;
+	inset: 0 !important;
+	width: 100vw !important;
+	height: 100vh !important;
+	z-index: 9999 !important;
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	backdrop-filter: blur(16px);
+	-webkit-backdrop-filter: blur(16px);
+	transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.45s ease;
+}
+
+body.galway-anim-enabled:not(.elementor-editor-active) .gw-menu-overlay.is-open,
+body.galway-anim-enabled:not(.elementor-editor-active) .g-e1203d2.is-open {
+	opacity: 1;
+	visibility: visible;
+	pointer-events: auto;
+}
+
+.gw-menu-toggle,
+.g-22674b6,
+.gw-menu-close,
+.g-9e390e4 {
+	cursor: pointer;
+	transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.gw-menu-toggle:hover,
+.g-22674b6:hover,
+.gw-menu-close:hover,
+.g-9e390e4:hover {
+	transform: scale(1.08);
+}
+
+/* Panel flotante de 4 tarjetas (ON-BOARD, ISLAND HOPPING, DIVING, EDUCATION) */
+body.galway-anim-enabled:not(.elementor-editor-active) .gw-journeys-panel,
+body.galway-anim-enabled:not(.elementor-editor-active) .g-98ed3c0 {
+	opacity: 0;
+	transform: translateY(16px) scale(0.98);
+	pointer-events: none;
+	transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1), transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+body.galway-anim-enabled:not(.elementor-editor-active) .gw-menu-overlay.journeys-active .gw-journeys-panel,
+body.galway-anim-enabled:not(.elementor-editor-active) .g-e1203d2.journeys-active .g-98ed3c0 {
+	opacity: 1;
+	transform: translateY(0) scale(1);
+	pointer-events: auto;
+}
+
+/* 5. Acordeón Horizontal: EXPLORE · DISCOVER · LEARN */
+.gw-pillars,
+.g-4b09dba {
+	display: flex;
+	width: 100%;
+	min-height: 100vh;
+}
+
+.gw-pillar,
+.g-4913cbe {
+	position: relative;
+	overflow: hidden;
+	transition: flex-grow 0.65s cubic-bezier(0.22, 1, 0.36, 1), filter 0.5s ease;
+}
+
+@media (min-width: 1025px) {
+	.gw-pillars .gw-pillar,
+	.g-4b09dba .g-4913cbe {
+		flex: 1 1 0% !important;
+	}
+
+	.gw-pillars.has-active-pillar .gw-pillar,
+	.g-4b09dba.has-active-pillar .g-4913cbe,
+	.gw-pillars:hover .gw-pillar,
+	.g-4b09dba:hover .g-4913cbe {
+		flex-grow: 0.68 !important;
+		filter: brightness(0.82);
+	}
+
+	.gw-pillars .gw-pillar.is-active-pillar,
+	.g-4b09dba .g-4913cbe.is-active-pillar,
+	.gw-pillars .gw-pillar:hover,
+	.g-4b09dba .g-4913cbe:hover {
+		flex-grow: 1.85 !important;
+		filter: brightness(1.04);
+	}
+
+	.gw-pillar .gw-pillar-desc,
+	.g-4913cbe .g-08a5884 {
+		opacity: 0.72;
+		transform: translateY(8px);
+		transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+	}
+
+	.gw-pillar.is-active-pillar .gw-pillar-desc,
+	.g-4913cbe.is-active-pillar .g-08a5884,
+	.gw-pillar:hover .gw-pillar-desc,
+	.g-4913cbe:hover .g-08a5884 {
+		opacity: 1;
+		transform: translateY(0);
+	}
+
+	/* Video loop al activarse por scroll o hover dentro de cada pilar */
+	.gw-pillar .elementor-background-video-container,
+	.gw-pillar .elementor-widget-e-self-hosted-video,
+	.gw-pillar video,
+	.g-4913cbe .elementor-background-video-container,
+	.g-4913cbe .elementor-widget-e-self-hosted-video,
+	.g-4913cbe video {
+		position: absolute !important;
+		top: 0 !important;
+		left: 0 !important;
+		width: 100% !important;
+		height: 100% !important;
+		max-width: none !important;
+		aspect-ratio: auto !important;
+		object-fit: cover !important;
+		opacity: 0 !important;
+		transition: opacity 0.6s ease;
+		pointer-events: none;
+		z-index: 1;
+	}
+
+	.gw-pillar.is-active-pillar .elementor-background-video-container,
+	.gw-pillar.is-active-pillar .elementor-widget-e-self-hosted-video,
+	.gw-pillar.is-active-pillar video,
+	.g-4913cbe.is-active-pillar .elementor-background-video-container,
+	.g-4913cbe.is-active-pillar .elementor-widget-e-self-hosted-video,
+	.g-4913cbe.is-active-pillar video,
+	.gw-pillar:hover .elementor-background-video-container,
+	.gw-pillar:hover .elementor-widget-e-self-hosted-video,
+	.gw-pillar:hover video,
+	.g-4913cbe:hover .elementor-background-video-container,
+	.g-4913cbe:hover .elementor-widget-e-self-hosted-video,
+	.g-4913cbe:hover video {
+		opacity: 1 !important;
+	}
+}
+
+@media (max-width: 1024px) {
+	.gw-pillars,
+	.g-4b09dba {
+		flex-direction: column;
+	}
+}
+
+/* 6. Escena Submarina + Lobo Marino PNG */
+.gw-ocean-scene,
+.g-45e7068 {
+	position: relative;
+	overflow: hidden;
+	background: radial-gradient(circle at 75% 35%, #0c5883 0%, #063558 45%, #031d36 100%);
+}
+
+/* Rayos de luz submarinos (Caustics CSS) */
+.gw-ocean-scene::before,
+.g-45e7068::before {
+	content: "";
+	position: absolute;
+	inset: -20% -10% 0 -10%;
+	pointer-events: none;
+	z-index: 1;
+	background:
+		conic-gradient(
+			from 160deg at 72% -10%,
+			transparent 0deg,
+			rgba(110, 215, 255, 0.14) 12deg,
+			transparent 24deg,
+			rgba(140, 230, 255, 0.09) 38deg,
+			transparent 52deg
+		);
+	filter: blur(18px);
+	animation: gwOceanRays 14s ease-in-out infinite alternate;
+}
+
+@keyframes gwOceanRays {
+	0% {
+		transform: translateX(-2%) rotate(-2deg) scale(1);
+		opacity: 0.75;
+	}
+	100% {
+		transform: translateX(3%) rotate(3deg) scale(1.06);
+		opacity: 1;
+	}
+}
+
+.gw-ocean-canvas {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+	z-index: 1;
+}
+
+/* Contenido por encima del agua/partículas */
+.gw-ocean-scene > .e-con-inner,
+.gw-ocean-scene > .elementor-element,
+.g-45e7068 > .e-con-inner,
+.g-45e7068 > .elementor-element {
+	position: relative;
+	z-index: 2;
+}
+
+.gw-sealion-swim,
+.g-6b29333 {
+	will-change: transform;
+	pointer-events: none;
+	filter: drop-shadow(0 24px 36px rgba(1, 14, 30, 0.45));
+}
+
+/* 7. Estilos limpios para Formulario 1-2-3 (Forminator u otros) */
+.gw-ocean-form .forminator-ui,
+.gw-ocean-form form,
+.g-8ca6d71 .forminator-ui,
+.g-8ca6d71 form {
+	background: transparent !important;
+	color: #ffffff;
+}
+
+.gw-ocean-form .forminator-label,
+.gw-ocean-form label,
+.g-8ca6d71 .forminator-label,
+.g-8ca6d71 label {
+	color: rgba(255, 255, 255, 0.92) !important;
+	font-weight: 400;
+	letter-spacing: 0.02em;
+}
+
+.gw-ocean-form .forminator-checkbox-box,
+.gw-ocean-form input[type="checkbox"],
+.g-8ca6d71 .forminator-checkbox-box,
+.g-8ca6d71 input[type="checkbox"] {
+	border-color: rgba(255, 255, 255, 0.7) !important;
+	background: rgba(255, 255, 255, 0.06) !important;
+	border-radius: 3px !important;
+}
+
+.gw-ocean-form .forminator-button,
+.gw-ocean-form button[type="submit"],
+.g-8ca6d71 .forminator-button,
+.g-8ca6d71 button[type="submit"] {
+	border-radius: 999px !important;
+	border: 1px solid rgba(255, 255, 255, 0.85) !important;
+	background: rgba(255, 255, 255, 0.1) !important;
+	color: #ffffff !important;
+	backdrop-filter: blur(8px);
+	transition: background-color 0.3s ease, transform 0.3s ease !important;
+}
+
+.gw-ocean-form .forminator-button:hover,
+.gw-ocean-form button[type="submit"]:hover,
+.g-8ca6d71 .forminator-button:hover,
+.g-8ca6d71 button[type="submit"]:hover {
+	background: #ffffff !important;
+	color: #031d36 !important;
+	transform: translateY(-2px);
+}
+
+/* 8. About Us Ken Burns sutil */
+.gw-ken-burns::before,
+.gw-ken-burns > .elementor-background-slideshow,
+.g-784c28e::before {
+	animation: gwKenBurns 22s ease-in-out infinite alternate;
+}
+
+@keyframes gwKenBurns {
+	0% {
+		transform: scale(1);
+	}
+	100% {
+		transform: scale(1.07);
+	}
+}
+
+/* 9. Botón Pill moderno (PLAN YOUR TRIP) */
+.gw-btn-pill,
+.g-dd1f895,
+.gw-btn-pill .elementor-button {
+	transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease, background-color 0.35s ease !important;
+}
+
+.gw-btn-pill:hover,
+.g-dd1f895:hover,
+.gw-btn-pill .elementor-button:hover {
+	transform: translateY(-3px) scale(1.04);
+	box-shadow: 0 14px 32px rgba(0, 0, 0, 0.35);
+}
+
+/* 10. Indicador lateral de navegación por escenas */
+.gw-depth-nav {
+	position: fixed;
+	right: 22px;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 90;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.gw-depth-dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 999px;
+	border: 1.5px solid rgba(255, 255, 255, 0.75);
+	background: transparent;
+	padding: 0;
+	cursor: pointer;
+	transition: transform 0.3s ease, background-color 0.3s ease, height 0.3s ease;
+}
+
+.gw-depth-dot.is-active {
+	background: #ffffff;
+	height: 24px;
+}
+
+@media (max-width: 1024px) {
+	.gw-depth-nav {
+		display: none;
+	}
+}
+
+/* 11. Accesibilidad: respetar preferencia de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+	.gw-ocean-scene::before,
+	.gw-ken-burns::before {
+		animation: none !important;
+	}
+
+	.gw-pillar,
+	.gw-menu-overlay,
+	.gw-journeys-panel {
+		transition: none !important;
+	}
+}
