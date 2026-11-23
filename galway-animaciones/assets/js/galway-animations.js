@@ -301,24 +301,33 @@
 			drawParticles();
 		}
 
-		// 2. Animación fluida, sin conflictos y muy notoria del Lobo Marino PNG
+		// 2. Animación del Lobo Marino PNG: viene nadando desde el fondo azul hasta quedar grande e interactivo
 		var seaLion = oceanScene.querySelector('.gw-sealion-swim, .g-6b29333');
 		if (seaLion) {
-			// Trayectoria amplia ligada al scroll en el contenedor exterior
+			// Entrada desde la profundidad del océano ligada al scroll (lejos/pequeño/difuminado -> cerca/grande/nítido)
 			gsap.fromTo(
 				seaLion,
-				{ x: 90, y: 35, rotation: -6, scale: 0.96 },
 				{
-					x: -40,
-					y: -35,
-					rotation: 4,
-					scale: 1.12,
-					ease: 'none',
+					x: 160,
+					y: -45,
+					rotation: -10,
+					scale: 0.22,
+					opacity: 0.45,
+					filter: 'blur(5px) brightness(0.68) drop-shadow(0 24px 36px rgba(1, 14, 30, 0.45))'
+				},
+				{
+					x: 0,
+					y: 0,
+					rotation: 0,
+					scale: 1,
+					opacity: 1,
+					filter: 'blur(0px) brightness(1) drop-shadow(0 24px 36px rgba(1, 14, 30, 0.45))',
+					ease: 'power2.out',
 					scrollTrigger: {
 						trigger: oceanScene,
-						start: 'top 95%',
-						end: 'bottom 5%',
-						scrub: 0.8
+						start: 'top bottom',
+						end: 'top 15%',
+						scrub: 0.9
 					}
 				}
 			);
