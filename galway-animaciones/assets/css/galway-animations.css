@@ -76,7 +76,7 @@ html.lenis body {
 .g-ede2985 {
 	min-height: 100vh;
 	position: relative;
-	overflow: hidden;
+	overflow: clip;
 }
 
 /* 3. Header Glassmorphism al hacer scroll */
@@ -146,12 +146,27 @@ body.galway-anim-enabled:not(.elementor-editor-active) .g-e1203d2.journeys-activ
 	pointer-events: auto;
 }
 
-/* 5. Acordeón Horizontal: EXPLORE · DISCOVER · LEARN (Solo controlado por scroll, sin conflicto de hover) */
+/* 5. Acordeón Horizontal: EXPLORE · DISCOVER · LEARN (Solo controlado por scroll, sin hover) */
+.gw-pillars-track {
+	position: relative;
+	height: 260vh;
+	background-color: #031d36;
+}
+
 .gw-pillars,
 .g-4b09dba {
 	display: flex;
 	width: 100%;
 	min-height: 100vh;
+}
+
+@media (min-width: 1025px) {
+	.gw-pillars-track > .gw-pillars,
+	.gw-pillars-track > .g-4b09dba {
+		position: sticky;
+		top: 0;
+		height: 100vh;
+	}
 }
 
 .gw-pillar,

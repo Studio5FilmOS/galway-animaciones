@@ -467,11 +467,16 @@
 			});
 		}
 
-		// Flujo natural sin sticky/pin para eliminar cualquier salto al salir de la sección
+		// Carril sticky nativo (usa overflow: clip en escenas para cero saltos)
+		var track = document.createElement('div');
+		track.className = 'gw-pillars-track';
+		pillarsWrap.parentNode.insertBefore(track, pillarsWrap);
+		track.appendChild(pillarsWrap);
+
 		ScrollTrigger.create({
-			trigger: pillarsWrap,
-			start: 'top 75%',
-			end: 'bottom 25%',
+			trigger: track,
+			start: 'top top',
+			end: 'bottom bottom',
 			onEnter: function () {
 				setActivePillar(0);
 			},
@@ -486,7 +491,7 @@
 				}
 			},
 			onLeave: function () {
-				setActivePillar(-1);
+				setActivePillar(2);
 			},
 			onLeaveBack: function () {
 				setActivePillar(-1);
@@ -538,7 +543,7 @@
 	}
 
 	/**
-	 * Efecto Parallax suave en la fotografía de About Us (Roberta y Cristina).
+	 * Efecto Parallax visible en la fotografía de About Us (Roberta y Cristina).
 	 */
 	function initAboutParallax() {
 		var bg = document.querySelector('.gw-parallax-bg, .g-f7a815f');
@@ -547,9 +552,9 @@
 		var parentScene = bg.closest('.gw-scene, .g-ede2985') || bg.parentElement;
 		gsap.fromTo(
 			bg,
-			{ yPercent: -10, scale: 1.06 },
+			{ yPercent: -14, scale: 1.12 },
 			{
-				yPercent: 10,
+				yPercent: 14,
 				scale: 1,
 				ease: 'none',
 				scrollTrigger: {
