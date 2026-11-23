@@ -81,6 +81,10 @@
 
 		// 7. Videos en hover para Pilares + pausa automática fuera de pantalla
 		initSmartVideos();
+
+		// 8. Parallax en fotografía de About Us + envío AJAX de formulario
+		initAboutParallax();
+		initTripQuiz();
 	});
 
 	/**
@@ -531,5 +535,72 @@
 				videoObserver.observe(v);
 			});
 		}
+	}
+
+	/**
+	 * Efecto Parallax suave en la fotografía de About Us (Roberta y Cristina).
+	 */
+	function initAboutParallax() {
+		var bg = document.querySelector('.gw-parallax-bg, .g-f7a815f');
+		if (!bg) return;
+
+		var parentScene = bg.closest('.gw-scene, .g-ede2985') || bg.parentElement;
+		gsap.fromTo(
+			bg,
+			{ yPercent: -10, scale: 1.06 },
+			{
+				yPercent: 10,
+				scale: 1,
+				ease: 'none',
+				scrollTrigger: {
+					trigger: parentScene,
+					start: 'top bottom',
+					end: 'bottom top',
+					scrub: true
+				}
+			}
+		);
+	}
+
+	/**
+	 * Envío AJAX del formulario [galway_trip_quiz] sin recargar la página.
+	 */
+	function initTripQuiz() {
+		var form = document.querySelector('.gw-quiz-form');
+		if (!form || typeof galwayAnimConfig === 'undefined') return;
+
+		form.addEventListener('submit', function (e) {
+			e.preventDefault();
+			var msgEl = form.querySelector('.gw-quiz-msg');
+			var submitBtn = form.querySelector('.gw-quiz-submit');
+			var data = new FormData(form);
+			data.append('action', 'galway_quiz_submit');
+			data.append('nonce', galwayAnimConfig.nonce);
+
+			if (submitBtn) submitBtn.disabled = true;
+			if (msgEl) msgEl.textContent = 'Sending...';
+
+			fetch(galwayAnimConfig.ajaxUrl, {
+				method: 'POST',
+				body: data
+			})
+				.then(function (r) {
+					return r.json();
+				})
+				.then(function (res) {
+					if (msgEl) {
+						msgEl.textContent = (res.data && res.data.message) ? res.data.message : 'Thank you!';
+					}
+					if (res.success) {
+						form.reset();
+					}
+				})
+				.catch(function () {
+					if (msgEl) msgEl.textContent = 'Connection error. Please try again.';
+				})
+				.finally(function () {
+					if (submitBtn) submitBtn.disabled = false;
+				});
+		});
 	}
 })();
