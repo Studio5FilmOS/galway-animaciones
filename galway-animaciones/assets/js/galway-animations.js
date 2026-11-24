@@ -297,7 +297,7 @@
 			return state;
 		}
 
-		// Escritorio: envolver las 4 escenas de Home en .gw-stage (el Footer queda fuera debajo)
+		// Escritorio: envolver las 4 escenas + Footer en .gw-stage (5 cortinas apiladas)
 		var stage = document.createElement('div');
 		stage.className = 'gw-stage';
 		allScenes[0].parentNode.insertBefore(stage, allScenes[0]);
@@ -306,9 +306,20 @@
 			stage.appendChild(scene);
 			gsap.set(scene, {
 				zIndex: idx + 1,
-				yPercent: idx === 0 ? 0 : 100
+				yPercent: idx === 0 ? 0 : 102
 			});
 		});
+
+		var footerEl = document.querySelector('[data-id="28221e0a"], .elementor-element-28221e0a');
+		if (footerEl) {
+			footerEl.classList.add('gw-footer-curtain');
+			stage.appendChild(footerEl);
+			gsap.set(footerEl, {
+				zIndex: allScenes.length + 1,
+				yPercent: 102
+			});
+			state.scenes = allScenes.concat([footerEl]);
+		}
 
 		var heroScene = allScenes[0];
 		var heroVideo = heroScene ? heroScene.querySelector('video, .elementor-background-video-container') : null;
@@ -331,7 +342,7 @@
 			scrollTrigger: {
 				trigger: stage,
 				start: 'top top',
-				end: '+=720%',
+				end: '+=800%',
 				pin: true,
 				pinSpacing: true,
 				scrub: 0.95,
@@ -339,15 +350,15 @@
 				onUpdate: function (self) {
 					var p = self.progress;
 
-					// Pilares secuenciales 1 -> 2 -> 3 con ~100vh de recorrido por video
+					// Pilares secuenciales 1 -> 2 -> 3 con ~100vh por video
 					if (pillars.length) {
-						if (p < 0.10) {
+						if (p < 0.12) {
 							setActivePillar(-1);
-						} else if (p < 0.26) {
+						} else if (p < 0.27) {
 							setActivePillar(0);
 						} else if (p < 0.40) {
 							setActivePillar(1);
-						} else if (p < 0.56) {
+						} else if (p < 0.54) {
 							setActivePillar(2);
 						} else {
 							setActivePillar(-1);
@@ -370,7 +381,7 @@
 
 					// Reproducir video de Iguana solo al llegar con el scroll y pausar al salir
 					if (iguanaVideoEl) {
-						if (p >= 0.52 && p < 0.88) {
+						if (p >= 0.50 && p < 0.84) {
 							if (iguanaVideoEl.paused) {
 								var ip = iguanaVideoEl.play();
 								if (ip && typeof ip.catch === 'function') ip.catch(function () {});
@@ -383,9 +394,10 @@
 					// Actualizar indicador lateral de escenas
 					if (state.setDotCallback) {
 						if (p < 0.10) state.setDotCallback(0);
-						else if (p < 0.58) state.setDotCallback(1);
-						else if (p < 0.84) state.setDotCallback(2);
-						else state.setDotCallback(3);
+						else if (p < 0.56) state.setDotCallback(1);
+						else if (p < 0.78) state.setDotCallback(2);
+						else if (p < 0.94) state.setDotCallback(3);
+						else state.setDotCallback(4);
 					}
 				}
 			}
@@ -393,35 +405,43 @@
 
 		state.masterTrigger = tl.scrollTrigger;
 
-		// 0.00 -> 0.12: Escena 2 (Pilares) se monta encima del Hero
+		// 0.00 -> 0.04: Pausa inicial en Hero (protege boton PLAN YOUR TRIP y WhatsApp al cargar)
+		tl.to({}, { duration: 0.04 }, 0);
+
+		// 0.04 -> 0.14: Escena 2 (Pilares) se monta encima del Hero
 		if (allScenes[1]) {
-			tl.to(allScenes[1], { yPercent: 0, ease: 'none', duration: 0.12 }, 0);
+			tl.to(allScenes[1], { yPercent: 0, ease: 'none', duration: 0.10 }, 0.04);
 		}
 		if (heroVideo) {
-			tl.to(heroVideo, { scale: 1.06, ease: 'none', duration: 0.12 }, 0);
+			tl.to(heroVideo, { scale: 1.06, ease: 'none', duration: 0.10 }, 0.04);
 		}
 
-		// 0.12 -> 0.54: Pausa amplia en Pilares (~100vh por cada uno de los 3 videos)
-		tl.to({}, { duration: 0.42 }, 0.12);
+		// 0.14 -> 0.52: Pausa amplia en Pilares (~100vh por cada uno de los 3 videos)
+		tl.to({}, { duration: 0.38 }, 0.14);
 
-		// 0.54 -> 0.66: Escena 3 (Iguana Manifesto) se monta encima de Pilares con parallax suave
+		// 0.52 -> 0.62: Escena 3 (Iguana Manifesto) se monta encima de Pilares con parallax suave
 		if (allScenes[2]) {
-			tl.to(allScenes[2], { yPercent: 0, ease: 'none', duration: 0.12 }, 0.54);
+			tl.to(allScenes[2], { yPercent: 0, ease: 'none', duration: 0.10 }, 0.52);
 		}
 		if (iguanaBg) {
-			tl.to(iguanaBg, { yPercent: 0, scale: 1, ease: 'none', duration: 0.12 }, 0.54);
+			tl.to(iguanaBg, { yPercent: 0, scale: 1, ease: 'none', duration: 0.10 }, 0.52);
 		}
 
-		// 0.66 -> 0.78: Pausa en Iguana Manifesto
-		tl.to({}, { duration: 0.12 }, 0.66);
+		// 0.62 -> 0.72: Pausa en Iguana Manifesto
+		tl.to({}, { duration: 0.10 }, 0.62);
 
-		// 0.78 -> 0.90: Escena 4 (Traveler Experiences) se monta encima de Iguana
+		// 0.72 -> 0.82: Escena 4 (Traveler Experiences) se monta encima de Iguana
 		if (allScenes[3]) {
-			tl.to(allScenes[3], { yPercent: 0, ease: 'none', duration: 0.12 }, 0.78);
+			tl.to(allScenes[3], { yPercent: 0, ease: 'none', duration: 0.10 }, 0.72);
 		}
 
-		// 0.90 -> 1.00: Pausa limpia para leer Traveler Experiences antes del Footer
-		tl.to({}, { duration: 0.10 }, 0.90);
+		// 0.82 -> 0.90: Pausa limpia para leer Traveler Experiences
+		tl.to({}, { duration: 0.08 }, 0.82);
+
+		// 0.90 -> 1.00: Escena 5 (Footer) se monta encima de Traveler Experiences
+		if (footerEl) {
+			tl.to(footerEl, { yPercent: 0, ease: 'none', duration: 0.10 }, 0.90);
+		}
 
 		return state;
 	}
@@ -588,7 +608,7 @@
 		nav.setAttribute('aria-label', 'Navegación de escenas');
 
 		var dots = [];
-		var desktopOffsets = [0, 0.18, 0.70, 0.94];
+		var desktopOffsets = [0, 0.20, 0.66, 0.86, 1.0];
 
 		function scrollToSceneIndex(index) {
 			if (stageInfo.masterTrigger) {
