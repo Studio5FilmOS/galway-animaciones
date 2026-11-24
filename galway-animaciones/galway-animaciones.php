@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Galway Animaciones Inmersivas
  * Description: Motor ligero de animaciones inmersivas (Lenis Smooth Scroll, GSAP ScrollTrigger, acordeón de pilares, menú overlay y entorno submarino) 100% compatible con Elementor Gratuito y Astra.
- * Version: 2.1.0
+ * Version: 2.2.0
  * Author: Studio 5 - Jesse Añazco
  * License: GPL-2.0+
  * Text Domain: galway-animaciones
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'GALWAY_ANIM_VERSION', '2.1.0' );
+define( 'GALWAY_ANIM_VERSION', '2.2.0' );
 define( 'GALWAY_ANIM_URL', plugin_dir_url( __FILE__ ) );
 
 /**
@@ -91,8 +91,11 @@ function galway_anim_enqueue_assets() {
 		'galway-animations-js',
 		'galwayAnimConfig',
 		array(
-			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-			'nonce'   => wp_create_nonce( 'galway_quiz_nonce' ),
+			'ajaxUrl'         => admin_url( 'admin-ajax.php' ),
+			'nonce'           => wp_create_nonce( 'galway_quiz_nonce' ),
+			'audioSuperficie' => esc_url( get_option( 'galway_audio_superficie', '' ) ),
+			'audioSubmarino'  => esc_url( get_option( 'galway_audio_submarino', '' ) ),
+			'audioVolume'     => max( 0, min( 1, intval( get_option( 'galway_audio_volume', 45 ) ) / 100 ) ),
 		)
 	);
 }
@@ -316,3 +319,120 @@ function galway_anim_handle_quiz_submit() {
 }
 add_action( 'wp_ajax_galway_quiz_submit', 'galway_anim_handle_quiz_submit' );
 add_action( 'wp_ajax_nopriv_galway_quiz_submit', 'galway_anim_handle_quiz_submit' );
+
+/**
+ * Panel de ajustes en WordPress: Ajustes > Galway Audios (AUDIOS: Superficie / Submarino).
+ */
+function galway_anim_register_audio_settings() {
+	register_setting(
+		'galway_anim_audios_group',
+		'galway_audio_superficie',
+		array(
+			'type'              => 'string',
+			'sanitize_callback' => 'esc_url_raw',
+			'default'           => '',
+		)
+	);
+
+	register_setting(
+		'galway_anim_audios_group',
+		'galway_audio_submarino',
+		array(
+			'type'              => 'string',
+			'sanitize_callback' => 'esc_url_raw',
+			'default'           => '',
+		)
+	);
+
+	register_setting(
+		'galway_anim_audios_group',
+		'galway_audio_volume',
+		array(
+			'type'              => 'integer',
+			'sanitize_callback' => function ( $val ) {
+				return max( 0, min( 100, intval( $val ) ) );
+			},
+			'default'           => 45,
+		)
+	);
+}
+add_action( 'admin_init', 'galway_anim_register_audio_settings' );
+
+function galway_anim_add_audio_menu() {
+	add_options_page(
+		'AUDIOS',
+		'Galway Audios',
+		'manage_options',
+		'galway-audios',
+		'galway_anim_render_audio_page'
+	);
+}
+add_action( 'admin_menu', 'galway_anim_add_audio_menu' );
+
+function galway_anim_admin_enqueue_media( $hook ) {
+	if ( 'settings_page_galway-audios' === $hook ) {
+		wp_enqueue_media();
+	}
+}
+add_action( 'admin_enqueue_scripts', 'galway_anim_admin_enqueue_media' );
+
+function galway_anim_render_audio_page() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+	$superficie = get_option( 'galway_audio_superficie', '' );
+	$submarino  = get_option( 'galway_audio_submarino', '' );
+	$volume     = intval( get_option( 'galway_audio_volume', 45 ) );
+	?>
+	<div class="wrap">
+		<h1>AUDIOS</h1>
+		<form method="post" action="options.php">
+			<?php settings_fields( 'galway_anim_audios_group' ); ?>
+			<table class="form-table" role="presentation">
+				<tr>
+					<th scope="row"><label for="galway_audio_superficie">Superficie</label></th>
+					<td>
+						<input type="url" id="galway_audio_superficie" name="galway_audio_superficie" value="<?php echo esc_attr( $superficie ); ?>" class="regular-text">
+						<button type="button" class="button gw-pick-audio" data-target="galway_audio_superficie">Elegir MP3</button>
+						<button type="button" class="button gw-clear-audio" data-target="galway_audio_superficie">Quitar</button>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="galway_audio_submarino">Submarino</label></th>
+					<td>
+						<input type="url" id="galway_audio_submarino" name="galway_audio_submarino" value="<?php echo esc_attr( $submarino ); ?>" class="regular-text">
+						<button type="button" class="button gw-pick-audio" data-target="galway_audio_submarino">Elegir MP3</button>
+						<button type="button" class="button gw-clear-audio" data-target="galway_audio_submarino">Quitar</button>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="galway_audio_volume">Volumen</label></th>
+					<td>
+						<input type="range" id="galway_audio_volume" name="galway_audio_volume" min="0" max="100" value="<?php echo esc_attr( $volume ); ?>" oninput="document.getElementById('gw_vol_label').textContent = this.value + '%';">
+						<span id="gw_vol_label"><?php echo esc_html( $volume ); ?>%</span>
+					</td>
+				</tr>
+			</table>
+			<?php submit_button( 'Guardar' ); ?>
+		</form>
+	</div>
+	<script>
+	jQuery(function($){
+		$('.gw-pick-audio').on('click', function(e){
+			e.preventDefault();
+			var targetId = $(this).data('target');
+			var frame = wp.media({ title: 'Elegir audio MP3', library: { type: 'audio' }, multiple: false });
+			frame.on('select', function(){
+				var att = frame.state().get('selection').first().toJSON();
+				$('#' + targetId).val(att.url);
+			});
+			frame.open();
+		});
+		$('.gw-clear-audio').on('click', function(e){
+			e.preventDefault();
+			$('#' + $(this).data('target')).val('');
+		});
+	});
+	</script>
+	<?php
+}

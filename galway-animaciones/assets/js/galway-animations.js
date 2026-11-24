@@ -65,6 +65,9 @@
 
 		// 6. Indicador lateral de escenas y enlaces #plan-your-trip
 		initDepthNavigation(lenis, stageInfo);
+
+		// 7. Audio ambiental (Superficie / Submarino) con crossfade suave
+		initAmbientAudio(stageInfo);
 	});
 
 	/**
@@ -290,7 +293,7 @@
 			gsap.set(aboutBg, { yPercent: -10, scale: 1.12 });
 		}
 
-		var state = { scenes: allScenes, masterTrigger: null, setDotCallback: null };
+		var state = { scenes: allScenes, masterTrigger: null, setDotCallback: null, setOceanAudioCallback: null };
 
 		var tl = gsap.timeline({
 			scrollTrigger: {
@@ -367,6 +370,11 @@
 						else if (p < 0.62) state.setDotCallback(1);
 						else if (p < 0.88) state.setDotCallback(2);
 						else state.setDotCallback(3);
+					}
+
+					// Crossfade de audio Superficie <-> Submarino
+					if (state.setOceanAudioCallback) {
+						state.setOceanAudioCallback(p >= 0.56 && p < 0.90);
 					}
 				}
 			}
@@ -624,6 +632,105 @@
 				scrollToSceneIndex(2);
 			});
 		});
+	}
+
+	/**
+	 * Reproductor ambiental discreto (Superficie / Submarino) con crossfade suave.
+	 */
+	function initAmbientAudio(stageInfo) {
+		if (typeof galwayAnimConfig === 'undefined') return;
+
+		var urlSup = galwayAnimConfig.audioSuperficie || '';
+		var urlSub = galwayAnimConfig.audioSubmarino || '';
+		if (!urlSup && !urlSub) return;
+
+		var maxVol = typeof galwayAnimConfig.audioVolume === 'number' ? galwayAnimConfig.audioVolume : 0.45;
+		var audioSup = urlSup ? new Audio(urlSup) : null;
+		var audioSub = urlSub ? new Audio(urlSub) : null;
+
+		[audioSup, audioSub].forEach(function (a) {
+			if (!a) return;
+			a.loop = true;
+			a.preload = 'none';
+			a.volume = 0;
+		});
+
+		var isPlaying = false;
+		var inOcean = false;
+
+		var btn = document.createElement('button');
+		btn.type = 'button';
+		btn.className = 'gw-sound-btn';
+		btn.setAttribute('aria-label', 'Alternar sonido ambiental');
+		btn.innerHTML = '<span class="gw-sound-bars"><span></span><span></span><span></span></span><span class="gw-sound-label">SOUND OFF</span>';
+		var labelEl = btn.querySelector('.gw-sound-label');
+		document.body.appendChild(btn);
+
+		function fadeAudio(audioEl, targetVol, duration) {
+			if (!audioEl) return;
+			gsap.killTweensOf(audioEl);
+			if (targetVol > 0 && audioEl.paused) {
+				var playPromise = audioEl.play();
+				if (playPromise && typeof playPromise.catch === 'function') {
+					playPromise.catch(function () {});
+				}
+			}
+			gsap.to(audioEl, {
+				volume: targetVol,
+				duration: duration || 1.1,
+				ease: 'power2.out',
+				onComplete: function () {
+					if (targetVol === 0 && !audioEl.paused) {
+						audioEl.pause();
+					}
+				}
+			});
+		}
+
+		function syncAudioTracks() {
+			if (!isPlaying) {
+				fadeAudio(audioSup, 0, 0.5);
+				fadeAudio(audioSub, 0, 0.5);
+				return;
+			}
+			if (audioSup && audioSub) {
+				fadeAudio(audioSup, inOcean ? 0 : maxVol, 1.2);
+				fadeAudio(audioSub, inOcean ? maxVol : 0, 1.2);
+			} else if (audioSup) {
+				fadeAudio(audioSup, maxVol, 0.9);
+			} else if (audioSub) {
+				fadeAudio(audioSub, maxVol, 0.9);
+			}
+		}
+
+		btn.addEventListener('click', function () {
+			isPlaying = !isPlaying;
+			btn.classList.toggle('is-playing', isPlaying);
+			labelEl.textContent = isPlaying ? 'SOUND ON' : 'SOUND OFF';
+			syncAudioTracks();
+		});
+
+		if (stageInfo && stageInfo.masterTrigger) {
+			stageInfo.setOceanAudioCallback = function (oceanActive) {
+				if (oceanActive === inOcean) return;
+				inOcean = oceanActive;
+				if (isPlaying) syncAudioTracks();
+			};
+		} else {
+			var oceanEl = document.querySelector('.gw-ocean-scene, .g-45e7068');
+			if (oceanEl && 'IntersectionObserver' in window) {
+				var obs = new IntersectionObserver(
+					function (entries) {
+						entries.forEach(function (entry) {
+							inOcean = entry.isIntersecting;
+							if (isPlaying) syncAudioTracks();
+						});
+					},
+					{ threshold: 0.35 }
+				);
+				obs.observe(oceanEl);
+			}
+		}
 	}
 
 	/**
