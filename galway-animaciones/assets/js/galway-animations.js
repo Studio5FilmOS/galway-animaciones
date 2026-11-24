@@ -301,19 +301,18 @@
 			drawParticles();
 		}
 
-		// 2. Animación del Lobo Marino PNG: viene nadando desde el fondo azul hasta quedar grande e interactivo
+		// 2. Animación del Lobo Marino PNG: entra desde el fondo SOLO al llegar (no se encoge ni gira al salir)
 		var seaLion = oceanScene.querySelector('.gw-sealion-swim, .g-6b29333');
 		if (seaLion) {
-			// Entrada desde la profundidad del océano ligada al scroll (lejos/pequeño/difuminado -> cerca/grande/nítido)
 			gsap.fromTo(
 				seaLion,
 				{
 					x: 160,
-					y: -45,
+					y: -35,
 					rotation: -10,
-					scale: 0.22,
-					opacity: 0.45,
-					filter: 'blur(5px) brightness(0.68) drop-shadow(0 24px 36px rgba(1, 14, 30, 0.45))'
+					scale: 0.24,
+					opacity: 0.4,
+					filter: 'blur(5px) brightness(0.7) drop-shadow(0 24px 36px rgba(1, 14, 30, 0.45))'
 				},
 				{
 					x: 0,
@@ -322,12 +321,12 @@
 					scale: 1,
 					opacity: 1,
 					filter: 'blur(0px) brightness(1) drop-shadow(0 24px 36px rgba(1, 14, 30, 0.45))',
+					duration: 1.65,
 					ease: 'power2.out',
 					scrollTrigger: {
 						trigger: oceanScene,
-						start: 'top bottom',
-						end: 'top 15%',
-						scrub: 0.9
+						start: 'top 78%',
+						once: true
 					}
 				}
 			);
