@@ -227,15 +227,16 @@
 			var mobileSeaLion = document.querySelector('.gw-sealion-swim, .g-6b29333');
 			var mobileOcean = document.querySelector('.gw-ocean-scene, .g-45e7068');
 			if (mobileSeaLion && mobileOcean) {
+				var mobileSeaLionWrap = wrapSeaLion(mobileSeaLion);
 				gsap.fromTo(
-					mobileSeaLion,
+					mobileSeaLionWrap,
 					{
-						x: 100,
-						y: -25,
-						rotation: -8,
-						scale: 0.3,
+						x: 90,
+						y: -18,
+						rotation: -4,
+						scale: 0.48,
 						opacity: 0.45,
-						filter: 'blur(4px) brightness(0.75) drop-shadow(0 24px 36px rgba(1, 14, 30, 0.45))'
+						filter: 'blur(3px) brightness(0.75)'
 					},
 					{
 						x: 0,
@@ -243,8 +244,8 @@
 						rotation: 0,
 						scale: 1,
 						opacity: 1,
-						filter: 'blur(0px) brightness(1) drop-shadow(0 24px 36px rgba(1, 14, 30, 0.45))',
-						duration: 1.5,
+						filter: 'blur(0px) brightness(1)',
+						duration: 1.4,
 						ease: 'power2.out',
 						scrollTrigger: {
 							trigger: mobileOcean,
@@ -298,16 +299,17 @@
 		var oceanScene = document.querySelector('.gw-ocean-scene, .g-45e7068');
 		var oceanVideoEl = oceanScene ? oceanScene.querySelector('video') : null;
 		var seaLion = oceanScene ? oceanScene.querySelector('.gw-sealion-swim, .g-6b29333') : null;
+		var seaLionWrap = seaLion ? wrapSeaLion(seaLion) : null;
 		var seaLionEntered = false;
 
-		if (seaLion) {
-			gsap.set(seaLion, {
-				x: 150,
-				y: -30,
-				rotation: -10,
-				scale: 0.25,
-				opacity: 0.4,
-				filter: 'blur(5px) brightness(0.7) drop-shadow(0 24px 36px rgba(1, 14, 30, 0.45))'
+		if (seaLionWrap) {
+			gsap.set(seaLionWrap, {
+				x: 90,
+				y: -18,
+				rotation: -4,
+				scale: 0.48,
+				opacity: 0.45,
+				filter: 'blur(3px) brightness(0.75)'
 			});
 		}
 
@@ -345,17 +347,17 @@
 						}
 					}
 
-					// Entrada única de la foca desde el fondo del mar (no se revierte al bajar a About Us)
-					if (seaLion && !seaLionEntered && p >= 0.58) {
+					// Entrada única de la foca desde el fondo del mar (en el contenedor exterior, sin chocar con el nado)
+					if (seaLionWrap && !seaLionEntered && p >= 0.54) {
 						seaLionEntered = true;
-						gsap.to(seaLion, {
+						gsap.to(seaLionWrap, {
 							x: 0,
 							y: 0,
 							rotation: 0,
 							scale: 1,
 							opacity: 1,
-							filter: 'blur(0px) brightness(1) drop-shadow(0 24px 36px rgba(1, 14, 30, 0.45))',
-							duration: 1.5,
+							filter: 'blur(0px) brightness(1)',
+							duration: 1.4,
 							ease: 'power2.out'
 						});
 					}
@@ -527,54 +529,60 @@
 			drawParticles();
 		}
 
-		// 2. Nado continuo en la imagen interior + seguimiento suave al mouse
+		// 2. Nado continuo muy sutil en el <img> interior + seguimiento suave al mouse
 		var seaLion = oceanScene.querySelector('.gw-sealion-swim, .g-6b29333');
 		if (seaLion) {
-			var seaLionImg = seaLion.querySelector('img') || seaLion;
-			gsap.to(seaLionImg, {
-				y: -22,
-				duration: 1.25,
+			wrapSeaLion(seaLion);
+
+			gsap.to(seaLion, {
+				y: -8,
+				duration: 3.2,
 				ease: 'sine.inOut',
 				repeat: -1,
 				yoyo: true
 			});
 
-			gsap.to(seaLionImg, {
-				rotation: 7,
-				duration: 1.55,
+			gsap.to(seaLion, {
+				rotation: 2.2,
+				duration: 4.2,
 				ease: 'sine.inOut',
 				repeat: -1,
 				yoyo: true,
-				delay: 0.2
+				delay: 0.3
 			});
 
-			gsap.to(seaLionImg, {
-				scaleX: 1.03,
-				scaleY: 0.97,
-				duration: 1.1,
-				ease: 'sine.inOut',
-				repeat: -1,
-				yoyo: true
-			});
-
-			var quickX = gsap.quickTo(seaLionImg, 'x', { duration: 0.45, ease: 'power2.out' });
-			var quickHoverScale = gsap.quickTo(seaLionImg, 'scale', { duration: 0.35, ease: 'back.out(1.8)' });
+			var quickX = gsap.quickTo(seaLion, 'x', { duration: 1.1, ease: 'power2.out' });
+			var quickHoverScale = gsap.quickTo(seaLion, 'scale', { duration: 0.6, ease: 'power2.out' });
 
 			oceanScene.addEventListener('mousemove', function (e) {
 				var rect = oceanScene.getBoundingClientRect();
 				var relX = (e.clientX - rect.left) / rect.width - 0.5;
-				quickX(relX * -80);
+				quickX(relX * -22);
 			});
 
 			seaLion.addEventListener('mouseenter', function () {
-				quickHoverScale(1.16);
-				quickX(-30);
+				quickHoverScale(1.045);
 			});
 
 			seaLion.addEventListener('mouseleave', function () {
 				quickHoverScale(1);
 			});
 		}
+	}
+
+	/**
+	 * Envuelve el <img> del lobo marino en .gw-sealion-wrap una sola vez para separar entrada y flotación.
+	 */
+	function wrapSeaLion(el) {
+		if (!el) return null;
+		if (el.parentElement && el.parentElement.classList.contains('gw-sealion-wrap')) {
+			return el.parentElement;
+		}
+		var wrap = document.createElement('div');
+		wrap.className = 'gw-sealion-wrap';
+		el.parentNode.insertBefore(wrap, el);
+		wrap.appendChild(el);
+		return wrap;
 	}
 
 	/**

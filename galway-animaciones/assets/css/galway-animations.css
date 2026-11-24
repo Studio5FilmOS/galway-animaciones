@@ -135,6 +135,13 @@ body.galway-anim-enabled:not(.elementor-editor-active) .g-e1203d2 {
 .e-1c6d7acb-124b {
 	backdrop-filter: blur(14px);
 	-webkit-backdrop-filter: blur(14px);
+	box-sizing: border-box;
+}
+
+.gw-sealion-wrap {
+	display: inline-block;
+	width: 100%;
+	will-change: transform;
 }
 
 body.galway-anim-enabled:not(.elementor-editor-active) .gw-menu-overlay.is-open,
@@ -511,14 +518,16 @@ body.galway-anim-enabled:not(.elementor-editor-active) .g-e1203d2.journeys-activ
 
 .gw-quiz-input {
 	flex: 1 1 220px;
-	padding: 0.8rem 1.15rem;
-	border-radius: 999px;
-	border: 1px solid rgba(255, 255, 255, 0.5);
-	background: rgba(255, 255, 255, 0.08);
-	color: #ffffff;
-	font-size: 0.9rem;
+	padding: 0.8rem 1.25rem !important;
+	border-radius: 999px !important;
+	border: 1px solid rgba(255, 255, 255, 0.55) !important;
+	background: rgba(255, 255, 255, 0.1) !important;
+	color: #ffffff !important;
+	font-size: 0.9rem !important;
 	backdrop-filter: blur(8px);
-	outline: none;
+	-webkit-backdrop-filter: blur(8px);
+	outline: none !important;
+	box-shadow: none !important;
 	transition: border-color 0.25s ease, background-color 0.25s ease;
 }
 
