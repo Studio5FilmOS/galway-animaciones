@@ -233,6 +233,91 @@
 			});
 		}
 
+		var reviewsAnimated = false;
+		function triggerReviewsAnimation() {
+			if (reviewsAnimated) return;
+			reviewsAnimated = true;
+
+			var ratingEl = document.querySelector('[data-id="6d8a8986"]');
+			var ratingTarget = ratingEl ? (ratingEl.querySelector('p') || ratingEl) : null;
+			if (ratingTarget) {
+				var ratingCounter = { val: 0 };
+				gsap.to(ratingCounter, {
+					val: 4.9,
+					duration: 1.2,
+					ease: 'power2.out',
+					onUpdate: function () {
+						ratingTarget.textContent = ratingCounter.val.toFixed(1);
+					}
+				});
+			}
+
+			var countEl = document.querySelector('[data-id="189dae41"]');
+			var countTarget = countEl ? (countEl.querySelector('p') || countEl) : null;
+			if (countTarget) {
+				var countCounter = { val: 0 };
+				gsap.to(countCounter, {
+					val: 127,
+					duration: 1.3,
+					ease: 'power2.out',
+					onUpdate: function () {
+						countTarget.textContent = Math.round(countCounter.val) + ' reviews';
+					}
+				});
+			}
+
+			var stars = document.querySelectorAll('[data-id="55e82289"] > *');
+			if (stars.length) {
+				gsap.fromTo(
+					stars,
+					{ scale: 0, opacity: 0, rotation: -18 },
+					{
+						scale: 1,
+						opacity: 1,
+						rotation: 0,
+						duration: 0.45,
+						stagger: 0.08,
+						ease: 'back.out(2.2)'
+					}
+				);
+			}
+
+			var verifiedIcon = document.querySelector('[data-id="322de734"]');
+			if (verifiedIcon) {
+				gsap.fromTo(
+					verifiedIcon,
+					{ scale: 0, rotation: -25, opacity: 0 },
+					{
+						scale: 1,
+						rotation: 0,
+						opacity: 1,
+						duration: 0.65,
+						delay: 0.35,
+						ease: 'back.out(2)',
+						onComplete: function () {
+							verifiedIcon.classList.add('gw-verified-pulse');
+						}
+					}
+				);
+			}
+
+			var reviewCards = document.querySelectorAll('[data-id="5050a2d8"], [data-id="127ea8ca"], [data-id="6100e690"]');
+			if (reviewCards.length) {
+				gsap.fromTo(
+					reviewCards,
+					{ y: 28, opacity: 0 },
+					{
+						y: 0,
+						opacity: 1,
+						duration: 0.65,
+						stagger: 0.12,
+						delay: 0.2,
+						ease: 'power3.out'
+					}
+				);
+			}
+		}
+
 		// Móvil / Tablet: flujo vertical limpio sin pin
 		if (window.innerWidth < 1025) {
 			if (pillarsWrap) {
@@ -292,6 +377,15 @@
 					{ threshold: 0.2 }
 				);
 				mObs.observe(mobileIguanaScene);
+			}
+
+			if (allScenes[3]) {
+				ScrollTrigger.create({
+					trigger: allScenes[3],
+					start: 'top 78%',
+					once: true,
+					onEnter: triggerReviewsAnimation
+				});
 			}
 
 			return state;
@@ -389,6 +483,10 @@
 						} else if (!iguanaVideoEl.paused) {
 							iguanaVideoEl.pause();
 						}
+					}
+
+					if (p >= 0.75) {
+						triggerReviewsAnimation();
 					}
 
 					// Actualizar indicador lateral de escenas
