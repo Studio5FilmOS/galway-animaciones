@@ -47,8 +47,10 @@
 			gsap.registerPlugin(ScrollTrigger);
 		}
 
+		var stageInfo = { scenes: [], masterTrigger: null, setDotCallback: null, setOceanAudioCallback: null, scrollToScene: null };
+
 		// 2. Menú Sánduche Overlay + Panel de 4 tarjetas (JOURNEYS)
-		initMenuOverlay(lenis);
+		initMenuOverlay(lenis, stageInfo);
 
 		// 3. Envío AJAX del formulario [galway_trip_quiz]
 		initTripQuiz();
@@ -58,7 +60,7 @@
 		}
 
 		// 4. Escenario Maestro de cortinas montadas en escritorio (o flujo adaptable en móvil)
-		var stageInfo = initMasterStage(lenis);
+		stageInfo = initMasterStage(lenis, stageInfo);
 
 		// 5. Entorno submarino (burbujas/partículas) + nado continuo e interactivo del lobo marino
 		initOceanScene(stageInfo);
@@ -73,11 +75,12 @@
 	/**
 	 * Controla la apertura/cierre del menú overlay y la aparición del panel Journeys.
 	 */
-	function initMenuOverlay(lenis) {
+	function initMenuOverlay(lenis, stageInfo) {
 		var overlay = document.querySelector('.gw-menu-overlay, .g-e1203d2');
 		var toggles = document.querySelectorAll('.gw-menu-toggle, .g-22674b6');
 		var closeBtns = document.querySelectorAll('.gw-menu-close, .g-9e390e4');
 		var journeysTrigger = document.querySelector('.gw-journeys-trigger, .g-be34468');
+		var aboutLink = document.querySelector('.e-23ad45da-7018');
 
 		if (!overlay || !toggles.length) {
 			return;
@@ -86,6 +89,7 @@
 		function openMenu(e) {
 			if (e) e.preventDefault();
 			overlay.classList.add('is-open');
+			overlay.classList.add('journeys-active');
 			if (lenis) lenis.stop();
 		}
 
@@ -110,6 +114,22 @@
 			btn.addEventListener('click', closeMenu);
 		});
 
+		overlay.addEventListener('click', function (e) {
+			if (e.target === overlay) {
+				closeMenu(e);
+			}
+		});
+
+		if (aboutLink) {
+			aboutLink.style.cursor = 'pointer';
+			aboutLink.addEventListener('click', function (e) {
+				closeMenu(e);
+				if (stageInfo && typeof stageInfo.scrollToScene === 'function') {
+					stageInfo.scrollToScene(3);
+				}
+			});
+		}
+
 		document.addEventListener('keydown', function (e) {
 			if (e.key === 'Escape' && overlay.classList.contains('is-open')) {
 				closeMenu();
@@ -132,13 +152,16 @@
 	/**
 	 * Orquesta el escenario maestro en escritorio: cada sección se monta encima de la actual.
 	 */
-	function initMasterStage(lenis) {
+	function initMasterStage(lenis, state) {
 		var allScenes = gsap.utils.toArray('.gw-scene, .g-ede2985').filter(function (el) {
 			return !el.classList.contains('gw-menu-overlay') && !el.classList.contains('g-e1203d2');
 		});
 
+		state = state || {};
+		state.scenes = allScenes;
+
 		if (allScenes.length < 2) {
-			return { scenes: allScenes, masterTrigger: null, setDotCallback: null };
+			return state;
 		}
 
 		var pillarsWrap = document.querySelector('.gw-pillars, .g-4b09dba');
@@ -252,7 +275,7 @@
 				);
 			}
 
-			return { scenes: allScenes, masterTrigger: null, setDotCallback: null };
+			return state;
 		}
 
 		// Escritorio: envolver las escenas en .gw-stage y montar cada una encima de la actual
@@ -293,7 +316,7 @@
 			gsap.set(aboutBg, { yPercent: -10, scale: 1.12 });
 		}
 
-		var state = { scenes: allScenes, masterTrigger: null, setDotCallback: null, setOceanAudioCallback: null };
+		// state ya inicializado arriba
 
 		var tl = gsap.timeline({
 			scrollTrigger: {
@@ -621,6 +644,7 @@
 
 		if (stageInfo) {
 			stageInfo.setDotCallback = setActiveDot;
+			stageInfo.scrollToScene = scrollToSceneIndex;
 		}
 
 		document.body.appendChild(nav);

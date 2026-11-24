@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Galway Animaciones Inmersivas
  * Description: Motor ligero de animaciones inmersivas (Lenis Smooth Scroll, GSAP ScrollTrigger, acordeón de pilares, menú overlay y entorno submarino) 100% compatible con Elementor Gratuito y Astra.
- * Version: 2.2.0
+ * Version: 2.3.0
  * Author: Studio 5 - Jesse Añazco
  * License: GPL-2.0+
  * Text Domain: galway-animaciones
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'GALWAY_ANIM_VERSION', '2.2.0' );
+define( 'GALWAY_ANIM_VERSION', '2.3.0' );
 define( 'GALWAY_ANIM_URL', plugin_dir_url( __FILE__ ) );
 
 /**
@@ -118,11 +118,12 @@ add_filter( 'body_class', 'galway_anim_body_class' );
 define( 'GALWAY_ANIM_GH_REPO', 'Studio5FilmOS/galway-animaciones' );
 
 function galway_anim_get_latest_release() {
+	global $pagenow;
 	$cache_key = 'galway_anim_gh_release';
-	if ( is_admin() && isset( $_GET['force-check'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( is_admin() && ( isset( $_GET['force-check'] ) || isset( $_GET['gw-check-update'] ) || 'plugins.php' === $pagenow || 'update-core.php' === $pagenow ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		delete_transient( $cache_key );
 	}
-	$cached    = get_transient( $cache_key );
+	$cached = get_transient( $cache_key );
 	if ( false !== $cached ) {
 		return is_array( $cached ) ? $cached : null;
 	}
@@ -139,13 +140,13 @@ function galway_anim_get_latest_release() {
 	);
 
 	if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-		set_transient( $cache_key, 'none', 15 * MINUTE_IN_SECONDS );
+		set_transient( $cache_key, 'none', 5 * MINUTE_IN_SECONDS );
 		return null;
 	}
 
 	$body = json_decode( wp_remote_retrieve_body( $response ), true );
 	if ( empty( $body['tag_name'] ) ) {
-		set_transient( $cache_key, 'none', 15 * MINUTE_IN_SECONDS );
+		set_transient( $cache_key, 'none', 5 * MINUTE_IN_SECONDS );
 		return null;
 	}
 
@@ -161,7 +162,7 @@ function galway_anim_get_latest_release() {
 	}
 
 	if ( empty( $zip_url ) ) {
-		set_transient( $cache_key, 'none', 15 * MINUTE_IN_SECONDS );
+		set_transient( $cache_key, 'none', 5 * MINUTE_IN_SECONDS );
 		return null;
 	}
 
@@ -171,12 +172,12 @@ function galway_anim_get_latest_release() {
 		'notes'   => ! empty( $body['body'] ) ? $body['body'] : 'Actualización de Galway Animaciones Inmersivas.',
 	);
 
-	set_transient( $cache_key, $release, HOUR_IN_SECONDS );
+	set_transient( $cache_key, $release, 5 * MINUTE_IN_SECONDS );
 	return $release;
 }
 
 function galway_anim_check_update( $transient ) {
-	if ( empty( $transient->checked ) ) {
+	if ( ! is_object( $transient ) ) {
 		return $transient;
 	}
 
@@ -195,6 +196,24 @@ function galway_anim_check_update( $transient ) {
 	return $transient;
 }
 add_filter( 'pre_set_site_transient_update_plugins', 'galway_anim_check_update' );
+
+function galway_anim_handle_manual_check() {
+	if ( is_admin() && isset( $_GET['gw-check-update'] ) && current_user_can( 'update_plugins' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		delete_transient( 'galway_anim_gh_release' );
+		delete_site_transient( 'update_plugins' );
+		wp_update_plugins();
+		wp_safe_redirect( admin_url( 'plugins.php' ) );
+		exit;
+	}
+}
+add_action( 'admin_init', 'galway_anim_handle_manual_check' );
+
+function galway_anim_action_links( $links ) {
+	$url     = admin_url( 'plugins.php?gw-check-update=1' );
+	$links[] = '<a href="' . esc_url( $url ) . '">Buscar actualización</a>';
+	return $links;
+}
+add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'galway_anim_action_links' );
 
 function galway_anim_plugin_info( $res, $action, $args ) {
 	if ( 'plugin_information' !== $action || empty( $args->slug ) || 'galway-animaciones' !== $args->slug ) {

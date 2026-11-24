@@ -125,9 +125,16 @@ body.galway-anim-enabled:not(.elementor-editor-active) .g-e1203d2 {
 	opacity: 0;
 	visibility: hidden;
 	pointer-events: none;
-	backdrop-filter: blur(16px);
-	-webkit-backdrop-filter: blur(16px);
+	backdrop-filter: blur(6px);
+	-webkit-backdrop-filter: blur(6px);
 	transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.45s ease;
+}
+
+.gw-journeys-panel,
+.g-98ed3c0,
+.e-1c6d7acb-124b {
+	backdrop-filter: blur(14px);
+	-webkit-backdrop-filter: blur(14px);
 }
 
 body.galway-anim-enabled:not(.elementor-editor-active) .gw-menu-overlay.is-open,
