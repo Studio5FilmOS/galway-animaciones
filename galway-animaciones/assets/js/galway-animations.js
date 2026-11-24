@@ -29,12 +29,12 @@
 			gsap.registerPlugin(ScrollTrigger);
 
 			lenis = new Lenis({
-				duration: 1.25,
+				duration: 1.45,
 				easing: function (t) {
 					return Math.min(1, 1.001 - Math.pow(2, -10 * t));
 				},
 				smoothWheel: true,
-				wheelMultiplier: 0.95
+				wheelMultiplier: 0.72
 			});
 
 			lenis.on('scroll', ScrollTrigger.update);
@@ -331,23 +331,23 @@
 			scrollTrigger: {
 				trigger: stage,
 				start: 'top top',
-				end: '+=460%',
+				end: '+=720%',
 				pin: true,
 				pinSpacing: true,
-				scrub: 0.65,
+				scrub: 0.95,
 				anticipatePin: 1,
 				onUpdate: function (self) {
 					var p = self.progress;
 
-					// Pilares secuenciales 1 -> 2 -> 3 mientras la escena 2 está en pantalla
+					// Pilares secuenciales 1 -> 2 -> 3 con ~100vh de recorrido por video
 					if (pillars.length) {
-						if (p < 0.14) {
+						if (p < 0.10) {
 							setActivePillar(-1);
-						} else if (p < 0.31) {
+						} else if (p < 0.26) {
 							setActivePillar(0);
-						} else if (p < 0.44) {
+						} else if (p < 0.40) {
 							setActivePillar(1);
-						} else if (p < 0.60) {
+						} else if (p < 0.56) {
 							setActivePillar(2);
 						} else {
 							setActivePillar(-1);
@@ -358,7 +358,7 @@
 					if (heroVideoEl) {
 						heroVideoEl.muted = true;
 						heroVideoEl.playsInline = true;
-						if (p < 0.22) {
+						if (p < 0.16) {
 							if (heroVideoEl.paused) {
 								var hp = heroVideoEl.play();
 								if (hp && typeof hp.catch === 'function') hp.catch(function () {});
@@ -370,7 +370,7 @@
 
 					// Reproducir video de Iguana solo al llegar con el scroll y pausar al salir
 					if (iguanaVideoEl) {
-						if (p >= 0.54 && p < 0.94) {
+						if (p >= 0.52 && p < 0.88) {
 							if (iguanaVideoEl.paused) {
 								var ip = iguanaVideoEl.play();
 								if (ip && typeof ip.catch === 'function') ip.catch(function () {});
@@ -382,9 +382,9 @@
 
 					// Actualizar indicador lateral de escenas
 					if (state.setDotCallback) {
-						if (p < 0.14) state.setDotCallback(0);
-						else if (p < 0.62) state.setDotCallback(1);
-						else if (p < 0.88) state.setDotCallback(2);
+						if (p < 0.10) state.setDotCallback(0);
+						else if (p < 0.58) state.setDotCallback(1);
+						else if (p < 0.84) state.setDotCallback(2);
 						else state.setDotCallback(3);
 					}
 				}
@@ -393,32 +393,35 @@
 
 		state.masterTrigger = tl.scrollTrigger;
 
-		// 0.00 -> 0.18: Escena 2 (Pilares) se monta encima del Hero
+		// 0.00 -> 0.12: Escena 2 (Pilares) se monta encima del Hero
 		if (allScenes[1]) {
-			tl.to(allScenes[1], { yPercent: 0, ease: 'none', duration: 0.18 }, 0);
+			tl.to(allScenes[1], { yPercent: 0, ease: 'none', duration: 0.12 }, 0);
 		}
 		if (heroVideo) {
-			tl.to(heroVideo, { scale: 1.06, ease: 'none', duration: 0.18 }, 0);
+			tl.to(heroVideo, { scale: 1.06, ease: 'none', duration: 0.12 }, 0);
 		}
 
-		// 0.18 -> 0.56: Pausa en Pilares para recorrer 1 -> 2 -> 3
-		tl.to({}, { duration: 0.38 }, 0.18);
+		// 0.12 -> 0.54: Pausa amplia en Pilares (~100vh por cada uno de los 3 videos)
+		tl.to({}, { duration: 0.42 }, 0.12);
 
-		// 0.56 -> 0.72: Escena 3 (Iguana Manifesto) se monta encima de Pilares con parallax suave
+		// 0.54 -> 0.66: Escena 3 (Iguana Manifesto) se monta encima de Pilares con parallax suave
 		if (allScenes[2]) {
-			tl.to(allScenes[2], { yPercent: 0, ease: 'none', duration: 0.16 }, 0.56);
+			tl.to(allScenes[2], { yPercent: 0, ease: 'none', duration: 0.12 }, 0.54);
 		}
 		if (iguanaBg) {
-			tl.to(iguanaBg, { yPercent: 0, scale: 1, ease: 'none', duration: 0.16 }, 0.56);
+			tl.to(iguanaBg, { yPercent: 0, scale: 1, ease: 'none', duration: 0.12 }, 0.54);
 		}
 
-		// 0.72 -> 0.84: Pausa breve en Iguana Manifesto
-		tl.to({}, { duration: 0.12 }, 0.72);
+		// 0.66 -> 0.78: Pausa en Iguana Manifesto
+		tl.to({}, { duration: 0.12 }, 0.66);
 
-		// 0.84 -> 1.00: Escena 4 (Traveler Experiences) se monta encima de Iguana
+		// 0.78 -> 0.90: Escena 4 (Traveler Experiences) se monta encima de Iguana
 		if (allScenes[3]) {
-			tl.to(allScenes[3], { yPercent: 0, ease: 'none', duration: 0.16 }, 0.84);
+			tl.to(allScenes[3], { yPercent: 0, ease: 'none', duration: 0.12 }, 0.78);
 		}
+
+		// 0.90 -> 1.00: Pausa limpia para leer Traveler Experiences antes del Footer
+		tl.to({}, { duration: 0.10 }, 0.90);
 
 		return state;
 	}
@@ -585,7 +588,7 @@
 		nav.setAttribute('aria-label', 'Navegación de escenas');
 
 		var dots = [];
-		var desktopOffsets = [0, 0.24, 0.74, 1.0];
+		var desktopOffsets = [0, 0.18, 0.70, 0.94];
 
 		function scrollToSceneIndex(index) {
 			if (stageInfo.masterTrigger) {
