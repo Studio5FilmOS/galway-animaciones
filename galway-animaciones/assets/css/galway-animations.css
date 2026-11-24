@@ -71,68 +71,40 @@ html.lenis body {
 	overflow: clip;
 }
 
-/* 2. Escenas de pantalla completa (100vh) con montaje por capas sticky */
+/* 2. Escenas de pantalla completa (100vh) y Escenario Maestro de cortinas apiladas */
 .gw-scene,
 .g-ede2985 {
 	min-height: 100vh;
 	position: relative;
-	overflow: clip;
+	overflow: hidden;
 }
 
 @media (min-width: 1025px) {
-	.gw-scene,
-	.g-ede2985 {
-		position: sticky;
-		top: 0;
-		will-change: transform;
-	}
-
-	.gw-hero-scene,
-	.g-8364edf {
-		z-index: 1;
-	}
-
-	.gw-pillars-track {
+	.gw-stage {
 		position: relative;
-		z-index: 2;
-		height: 240vh;
+		width: 100%;
+		height: 100vh;
+		overflow: hidden;
 		background-color: #031d36;
 	}
 
-	.gw-pillars,
-	.g-4b09dba {
-		z-index: 2;
-	}
-
-	.gw-ocean-scene,
-	.g-45e7068 {
-		z-index: 3;
-	}
-
-	.gw-ken-burns,
-	.g-784c28e {
-		z-index: 4;
+	.gw-stage > .gw-scene,
+	.gw-stage > .g-ede2985 {
+		position: absolute !important;
+		top: 0 !important;
+		left: 0 !important;
+		width: 100% !important;
+		height: 100vh !important;
+		min-height: 100vh !important;
+		overflow: hidden !important;
+		will-change: transform;
 	}
 }
 
-/* 3. Header fijo transparente con Glassmorphism al hacer scroll */
+/* 3. Header en portada (mantiene el flujo natural dentro de hero-content) */
 .gw-header-glass,
 .g-112c2c1 {
-	position: fixed !important;
-	top: 0;
-	left: 0;
-	right: 0;
-	width: 100% !important;
-	z-index: 100 !important;
-	padding: 1.5rem 3rem !important;
 	transition: background-color 0.4s ease, backdrop-filter 0.4s ease, padding 0.4s ease;
-}
-
-@media (max-width: 767px) {
-	.gw-header-glass,
-	.g-112c2c1 {
-		padding: 1rem 1.5rem !important;
-	}
 }
 
 .gw-header-glass.is-scrolled,
@@ -197,26 +169,11 @@ body.galway-anim-enabled:not(.elementor-editor-active) .g-e1203d2.journeys-activ
 }
 
 /* 5. Acordeón Horizontal: EXPLORE · DISCOVER · LEARN (Solo controlado por scroll, sin hover) */
-.gw-pillars-track {
-	position: relative;
-	height: 260vh;
-	background-color: #031d36;
-}
-
 .gw-pillars,
 .g-4b09dba {
 	display: flex;
 	width: 100%;
 	min-height: 100vh;
-}
-
-@media (min-width: 1025px) {
-	.gw-pillars-track > .gw-pillars,
-	.gw-pillars-track > .g-4b09dba {
-		position: sticky;
-		top: 0;
-		height: 100vh;
-	}
 }
 
 .gw-pillar,
@@ -417,6 +374,8 @@ body.galway-anim-enabled:not(.elementor-editor-active) .g-e1203d2.journeys-activ
 	left: 0 !important;
 	width: 100% !important;
 	height: 124% !important;
+	object-fit: cover !important;
+	display: block;
 	z-index: 0 !important;
 	pointer-events: none;
 	will-change: transform;
@@ -430,12 +389,10 @@ body.galway-anim-enabled:not(.elementor-editor-active) .g-e1203d2.journeys-activ
 	display: block;
 }
 
-.gw-ken-burns > .e-con,
-.gw-ken-burns > .elementor-element,
-.g-784c28e > .e-con,
-.g-784c28e > .elementor-element {
-	position: relative;
-	z-index: 2;
+.gw-ken-burns > :not(.gw-parallax-bg):not(.g-f7a815f),
+.g-784c28e > :not(.gw-parallax-bg):not(.g-f7a815f) {
+	position: relative !important;
+	z-index: 3 !important;
 }
 
 .gw-ken-burns::after,
