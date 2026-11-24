@@ -132,7 +132,8 @@ body.galway-anim-enabled:not(.elementor-editor-active) .g-e1203d2 {
 
 .gw-journeys-panel,
 .g-98ed3c0,
-.e-1c6d7acb-124b {
+.gw-menu-overlay > :last-child,
+.g-e1203d2 > :last-child {
 	backdrop-filter: blur(14px);
 	-webkit-backdrop-filter: blur(14px);
 	box-sizing: border-box;
@@ -414,9 +415,27 @@ body.galway-anim-enabled:not(.elementor-editor-active) .g-e1203d2.journeys-activ
 	content: "";
 	position: absolute;
 	inset: 0;
-	background: linear-gradient(180deg, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0.08) 45%, rgba(0, 0, 0, 0.68) 100%);
+	background: linear-gradient(180deg, rgba(0, 0, 0, 0.38) 0%, rgba(0, 0, 0, 0.28) 50%, rgba(0, 0, 0, 0.58) 100%);
 	z-index: 1;
 	pointer-events: none;
+}
+
+/* Separadores limpios para tarjetas de reseñas y footer */
+.elementor-element-6b3ebe46,
+.elementor-element-1803c811,
+.elementor-element-57e9c5a1 {
+	border-top: 1px solid rgba(11, 62, 94, 0.22);
+}
+
+.elementor-element-189dae41 {
+	border-left: 1px solid rgba(22, 58, 79, 0.25);
+	border-right: 1px solid rgba(22, 58, 79, 0.25);
+}
+
+@media (min-width: 768px) {
+	.elementor-element-51183987 {
+		border-left: 1px solid rgba(11, 62, 94, 0.25);
+	}
 }
 
 /* 8b. Formulario 1-paso Galway ([galway_trip_quiz]) */

@@ -1,6 +1,6 @@
 /**
- * Galway Animaciones Inmersivas v2.1.0
- * Escenario Maestro de cortinas apiladas + Lenis + GSAP ScrollTrigger + Entorno Submarino + Menú Overlay
+ * Galway Animaciones Inmersivas v2.5.0
+ * Escenario Maestro de cortinas apiladas (Home) + páginas dedicadas (Plan Your Trip & About Us)
  */
 (function () {
 	'use strict';
@@ -50,7 +50,7 @@
 		var stageInfo = { scenes: [], masterTrigger: null, setDotCallback: null, setOceanAudioCallback: null, scrollToScene: null };
 
 		// 2. Menú Sánduche Overlay + Panel de 4 tarjetas (JOURNEYS)
-		initMenuOverlay(lenis, stageInfo);
+		initMenuOverlay(lenis);
 
 		// 3. Envío AJAX del formulario [galway_trip_quiz]
 		initTripQuiz();
@@ -59,13 +59,13 @@
 			return;
 		}
 
-		// 4. Escenario Maestro de cortinas montadas en escritorio (o flujo adaptable en móvil)
+		// 4. Escenario Maestro de cortinas montadas en Home (o animación de página dedicada)
 		stageInfo = initMasterStage(lenis, stageInfo);
 
-		// 5. Entorno submarino (burbujas/partículas) + nado continuo e interactivo del lobo marino
-		initOceanScene(stageInfo);
+		// 5. Entorno submarino (burbujas/partículas) + nado sutil del lobo marino
+		initOceanScene();
 
-		// 6. Indicador lateral de escenas y enlaces #plan-your-trip
+		// 6. Indicador lateral de escenas
 		initDepthNavigation(lenis, stageInfo);
 
 		// 7. Audio ambiental (Superficie / Submarino) con crossfade suave
@@ -75,12 +75,11 @@
 	/**
 	 * Controla la apertura/cierre del menú overlay y la aparición del panel Journeys.
 	 */
-	function initMenuOverlay(lenis, stageInfo) {
+	function initMenuOverlay(lenis) {
 		var overlay = document.querySelector('.gw-menu-overlay, .g-e1203d2');
 		var toggles = document.querySelectorAll('.gw-menu-toggle, .g-22674b6');
 		var closeBtns = document.querySelectorAll('.gw-menu-close, .g-9e390e4');
 		var journeysTrigger = document.querySelector('.gw-journeys-trigger, .g-be34468');
-		var aboutLink = document.querySelector('.e-23ad45da-7018');
 
 		if (!overlay || !toggles.length) {
 			return;
@@ -120,16 +119,6 @@
 			}
 		});
 
-		if (aboutLink) {
-			aboutLink.style.cursor = 'pointer';
-			aboutLink.addEventListener('click', function (e) {
-				closeMenu(e);
-				if (stageInfo && typeof stageInfo.scrollToScene === 'function') {
-					stageInfo.scrollToScene(3);
-				}
-			});
-		}
-
 		document.addEventListener('keydown', function (e) {
 			if (e.key === 'Escape' && overlay.classList.contains('is-open')) {
 				closeMenu();
@@ -150,7 +139,7 @@
 	}
 
 	/**
-	 * Orquesta el escenario maestro en escritorio: cada sección se monta encima de la actual.
+	 * Orquesta el escenario maestro en Home (4 cortinas) o las páginas dedicadas (Plan Your Trip / About Us).
 	 */
 	function initMasterStage(lenis, state) {
 		var allScenes = gsap.utils.toArray('.gw-scene, .g-ede2985').filter(function (el) {
@@ -160,7 +149,45 @@
 		state = state || {};
 		state.scenes = allScenes;
 
+		// Páginas dedicadas de 1 sola escena (Plan Your Trip o About Us)
 		if (allScenes.length < 2) {
+			var singleOcean = document.querySelector('.gw-ocean-scene, .g-45e7068');
+			var singleSeaLion = singleOcean ? singleOcean.querySelector('.gw-sealion-swim, .g-6b29333') : null;
+			if (singleSeaLion) {
+				var singleWrap = wrapSeaLion(singleSeaLion);
+				gsap.fromTo(
+					singleWrap,
+					{
+						x: 90,
+						y: -18,
+						rotation: -4,
+						scale: 0.48,
+						opacity: 0.45,
+						filter: 'blur(3px) brightness(0.75)'
+					},
+					{
+						x: 0,
+						y: 0,
+						rotation: 0,
+						scale: 1,
+						opacity: 1,
+						filter: 'blur(0px) brightness(1)',
+						duration: 1.5,
+						delay: 0.25,
+						ease: 'power2.out'
+					}
+				);
+			}
+
+			var singleParallax = document.querySelector('.gw-parallax-bg, .g-f7a815f');
+			if (singleParallax) {
+				gsap.fromTo(
+					singleParallax,
+					{ scale: 1.07, yPercent: -2 },
+					{ scale: 1, yPercent: 0, duration: 2.2, ease: 'power2.out' }
+				);
+			}
+
 			return state;
 		}
 
@@ -224,50 +251,18 @@
 				});
 			}
 
-			var mobileSeaLion = document.querySelector('.gw-sealion-swim, .g-6b29333');
-			var mobileOcean = document.querySelector('.gw-ocean-scene, .g-45e7068');
-			if (mobileSeaLion && mobileOcean) {
-				var mobileSeaLionWrap = wrapSeaLion(mobileSeaLion);
+			var mobileParallaxBg = document.querySelector('.gw-parallax-bg, .g-f7a815f');
+			if (mobileParallaxBg) {
+				var mobileParallaxScene = mobileParallaxBg.closest('.gw-scene, .g-ede2985') || mobileParallaxBg.parentElement;
 				gsap.fromTo(
-					mobileSeaLionWrap,
-					{
-						x: 90,
-						y: -18,
-						rotation: -4,
-						scale: 0.48,
-						opacity: 0.45,
-						filter: 'blur(3px) brightness(0.75)'
-					},
-					{
-						x: 0,
-						y: 0,
-						rotation: 0,
-						scale: 1,
-						opacity: 1,
-						filter: 'blur(0px) brightness(1)',
-						duration: 1.4,
-						ease: 'power2.out',
-						scrollTrigger: {
-							trigger: mobileOcean,
-							start: 'top 80%',
-							once: true
-						}
-					}
-				);
-			}
-
-			var mobileAboutBg = document.querySelector('.gw-parallax-bg, .g-f7a815f');
-			if (mobileAboutBg) {
-				var mobileAboutScene = mobileAboutBg.closest('.gw-scene, .g-ede2985') || mobileAboutBg.parentElement;
-				gsap.fromTo(
-					mobileAboutBg,
+					mobileParallaxBg,
 					{ yPercent: -10, scale: 1.1 },
 					{
 						yPercent: 10,
 						scale: 1,
 						ease: 'none',
 						scrollTrigger: {
-							trigger: mobileAboutScene,
+							trigger: mobileParallaxScene,
 							start: 'top bottom',
 							end: 'bottom top',
 							scrub: true
@@ -279,7 +274,7 @@
 			return state;
 		}
 
-		// Escritorio: envolver las escenas en .gw-stage y montar cada una encima de la actual
+		// Escritorio: envolver las 4 escenas de Home en .gw-stage (el Footer queda fuera debajo)
 		var stage = document.createElement('div');
 		stage.className = 'gw-stage';
 		allScenes[0].parentNode.insertBefore(stage, allScenes[0]);
@@ -296,35 +291,16 @@
 		var heroVideo = heroScene ? heroScene.querySelector('video, .elementor-background-video-container') : null;
 		var heroVideoEl = heroScene ? heroScene.querySelector('video') : null;
 
-		var oceanScene = document.querySelector('.gw-ocean-scene, .g-45e7068');
-		var oceanVideoEl = oceanScene ? oceanScene.querySelector('video') : null;
-		var seaLion = oceanScene ? oceanScene.querySelector('.gw-sealion-swim, .g-6b29333') : null;
-		var seaLionWrap = seaLion ? wrapSeaLion(seaLion) : null;
-		var seaLionEntered = false;
-
-		if (seaLionWrap) {
-			gsap.set(seaLionWrap, {
-				x: 90,
-				y: -18,
-				rotation: -4,
-				scale: 0.48,
-				opacity: 0.45,
-				filter: 'blur(3px) brightness(0.75)'
-			});
+		var iguanaBg = document.querySelector('.gw-parallax-bg, .g-f7a815f');
+		if (iguanaBg) {
+			gsap.set(iguanaBg, { yPercent: -10, scale: 1.12 });
 		}
-
-		var aboutBg = document.querySelector('.gw-parallax-bg, .g-f7a815f');
-		if (aboutBg) {
-			gsap.set(aboutBg, { yPercent: -10, scale: 1.12 });
-		}
-
-		// state ya inicializado arriba
 
 		var tl = gsap.timeline({
 			scrollTrigger: {
 				trigger: stage,
 				start: 'top top',
-				end: '+=480%',
+				end: '+=460%',
 				pin: true,
 				pinSpacing: true,
 				scrub: 0.65,
@@ -347,22 +323,7 @@
 						}
 					}
 
-					// Entrada única de la foca desde el fondo del mar (en el contenedor exterior, sin chocar con el nado)
-					if (seaLionWrap && !seaLionEntered && p >= 0.54) {
-						seaLionEntered = true;
-						gsap.to(seaLionWrap, {
-							x: 0,
-							y: 0,
-							rotation: 0,
-							scale: 1,
-							opacity: 1,
-							filter: 'blur(0px) brightness(1)',
-							duration: 1.4,
-							ease: 'power2.out'
-						});
-					}
-
-					// Pausar videos fuera de vista para mantener fluidez
+					// Pausar video del Hero fuera de vista
 					if (heroVideoEl) {
 						heroVideoEl.muted = true;
 						heroVideoEl.playsInline = true;
@@ -376,30 +337,12 @@
 						}
 					}
 
-					if (oceanVideoEl) {
-						oceanVideoEl.muted = true;
-						oceanVideoEl.playsInline = true;
-						if (p >= 0.52 && p < 0.96) {
-							if (oceanVideoEl.paused) {
-								var op = oceanVideoEl.play();
-								if (op && typeof op.catch === 'function') op.catch(function () {});
-							}
-						} else if (!oceanVideoEl.paused) {
-							oceanVideoEl.pause();
-						}
-					}
-
 					// Actualizar indicador lateral de escenas
 					if (state.setDotCallback) {
 						if (p < 0.14) state.setDotCallback(0);
 						else if (p < 0.62) state.setDotCallback(1);
 						else if (p < 0.88) state.setDotCallback(2);
 						else state.setDotCallback(3);
-					}
-
-					// Crossfade de audio Superficie <-> Submarino
-					if (state.setOceanAudioCallback) {
-						state.setOceanAudioCallback(p >= 0.56 && p < 0.90);
 					}
 				}
 			}
@@ -418,27 +361,27 @@
 		// 0.18 -> 0.56: Pausa en Pilares para recorrer 1 -> 2 -> 3
 		tl.to({}, { duration: 0.38 }, 0.18);
 
-		// 0.56 -> 0.72: Escena 3 (Mar del Lobo) se monta encima de Pilares
+		// 0.56 -> 0.72: Escena 3 (Iguana Manifesto) se monta encima de Pilares con parallax suave
 		if (allScenes[2]) {
 			tl.to(allScenes[2], { yPercent: 0, ease: 'none', duration: 0.16 }, 0.56);
 		}
+		if (iguanaBg) {
+			tl.to(iguanaBg, { yPercent: 0, scale: 1, ease: 'none', duration: 0.16 }, 0.56);
+		}
 
-		// 0.72 -> 0.84: Pausa en Mar del Lobo para formulario e interacción
+		// 0.72 -> 0.84: Pausa breve en Iguana Manifesto
 		tl.to({}, { duration: 0.12 }, 0.72);
 
-		// 0.84 -> 1.00: Escena 4 (About Us) se monta encima del Mar + Parallax en foto de Roberta y Cristina
+		// 0.84 -> 1.00: Escena 4 (Traveler Experiences) se monta encima de Iguana
 		if (allScenes[3]) {
 			tl.to(allScenes[3], { yPercent: 0, ease: 'none', duration: 0.16 }, 0.84);
-		}
-		if (aboutBg) {
-			tl.to(aboutBg, { yPercent: 0, scale: 1, ease: 'none', duration: 0.16 }, 0.84);
 		}
 
 		return state;
 	}
 
 	/**
-	 * Entorno submarino vivo (burbujas/partículas) + nado continuo e interacción con el mouse.
+	 * Entorno submarino vivo (burbujas/partículas) + nado continuo sutil del lobo marino PNG.
 	 */
 	function initOceanScene() {
 		var oceanScene = document.querySelector('.gw-ocean-scene, .g-45e7068');
@@ -586,7 +529,7 @@
 	}
 
 	/**
-	 * Crea puntos discretos laterales para navegar entre escenas y conecta botones #plan-your-trip.
+	 * Crea puntos discretos laterales para navegar entre las 4 escenas de Home.
 	 */
 	function initDepthNavigation(lenis, stageInfo) {
 		var scenes = stageInfo && stageInfo.scenes ? stageInfo.scenes : [];
@@ -599,7 +542,7 @@
 		nav.setAttribute('aria-label', 'Navegación de escenas');
 
 		var dots = [];
-		var desktopOffsets = [0, 0.24, 0.76, 1.0];
+		var desktopOffsets = [0, 0.24, 0.74, 1.0];
 
 		function scrollToSceneIndex(index) {
 			if (stageInfo.masterTrigger) {
@@ -656,18 +599,10 @@
 		}
 
 		document.body.appendChild(nav);
-
-		// Conectar botón PLAN YOUR TRIP hacia la escena del mar + formulario (índice 2)
-		document.querySelectorAll('a[href="#plan-your-trip"]').forEach(function (link) {
-			link.addEventListener('click', function (e) {
-				e.preventDefault();
-				scrollToSceneIndex(2);
-			});
-		});
 	}
 
 	/**
-	 * Reproductor ambiental discreto (Superficie / Submarino) con crossfade suave.
+	 * Reproductor ambiental discreto (Superficie / Submarino).
 	 */
 	function initAmbientAudio(stageInfo) {
 		if (typeof galwayAnimConfig === 'undefined') return;
@@ -688,7 +623,7 @@
 		});
 
 		var isPlaying = false;
-		var inOcean = false;
+		var inOcean = !!document.querySelector('.gw-ocean-scene, .g-45e7068');
 
 		var btn = document.createElement('button');
 		btn.type = 'button';
@@ -741,28 +676,6 @@
 			labelEl.textContent = isPlaying ? 'SOUND ON' : 'SOUND OFF';
 			syncAudioTracks();
 		});
-
-		if (stageInfo && stageInfo.masterTrigger) {
-			stageInfo.setOceanAudioCallback = function (oceanActive) {
-				if (oceanActive === inOcean) return;
-				inOcean = oceanActive;
-				if (isPlaying) syncAudioTracks();
-			};
-		} else {
-			var oceanEl = document.querySelector('.gw-ocean-scene, .g-45e7068');
-			if (oceanEl && 'IntersectionObserver' in window) {
-				var obs = new IntersectionObserver(
-					function (entries) {
-						entries.forEach(function (entry) {
-							inOcean = entry.isIntersecting;
-							if (isPlaying) syncAudioTracks();
-						});
-					},
-					{ threshold: 0.35 }
-				);
-				obs.observe(oceanEl);
-			}
-		}
 	}
 
 	/**
