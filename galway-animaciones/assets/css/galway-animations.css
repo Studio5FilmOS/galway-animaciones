@@ -404,8 +404,24 @@ body.galway-anim-enabled:not(.elementor-editor-active) .g-e1203d2.journeys-activ
 	display: block;
 }
 
-.gw-ken-burns > :not(.gw-parallax-bg):not(.g-f7a815f),
-.g-784c28e > :not(.gw-parallax-bg):not(.g-f7a815f) {
+.gw-ken-burns .elementor-widget-e-self-hosted-video,
+.g-784c28e .elementor-widget-e-self-hosted-video,
+.gw-ken-burns video,
+.g-784c28e video {
+	position: absolute !important;
+	top: 0 !important;
+	left: 0 !important;
+	width: 100% !important;
+	height: 100% !important;
+	max-width: none !important;
+	aspect-ratio: auto !important;
+	object-fit: cover !important;
+	z-index: 0 !important;
+	pointer-events: none;
+}
+
+.gw-ken-burns > :not(.gw-parallax-bg):not(.g-f7a815f):not(.elementor-widget-e-self-hosted-video):not(video),
+.g-784c28e > :not(.gw-parallax-bg):not(.g-f7a815f):not(.elementor-widget-e-self-hosted-video):not(video) {
 	position: relative !important;
 	z-index: 3 !important;
 }

@@ -271,6 +271,29 @@
 				);
 			}
 
+			var mobileIguanaScene = allScenes[2];
+			var mobileIguanaVideo = mobileIguanaScene ? mobileIguanaScene.querySelector('video') : null;
+			if (mobileIguanaVideo && 'IntersectionObserver' in window) {
+				mobileIguanaVideo.muted = true;
+				mobileIguanaVideo.loop = true;
+				mobileIguanaVideo.playsInline = true;
+				mobileIguanaVideo.pause();
+				var mObs = new IntersectionObserver(
+					function (entries) {
+						entries.forEach(function (entry) {
+							if (entry.isIntersecting) {
+								var mp = mobileIguanaVideo.play();
+								if (mp && typeof mp.catch === 'function') mp.catch(function () {});
+							} else {
+								mobileIguanaVideo.pause();
+							}
+						});
+					},
+					{ threshold: 0.2 }
+				);
+				mObs.observe(mobileIguanaScene);
+			}
+
 			return state;
 		}
 
@@ -294,6 +317,14 @@
 		var iguanaBg = document.querySelector('.gw-parallax-bg, .g-f7a815f');
 		if (iguanaBg) {
 			gsap.set(iguanaBg, { yPercent: -10, scale: 1.12 });
+		}
+
+		var iguanaVideoEl = allScenes[2] ? allScenes[2].querySelector('video') : null;
+		if (iguanaVideoEl) {
+			iguanaVideoEl.muted = true;
+			iguanaVideoEl.loop = true;
+			iguanaVideoEl.playsInline = true;
+			iguanaVideoEl.pause();
 		}
 
 		var tl = gsap.timeline({
@@ -334,6 +365,18 @@
 							}
 						} else if (!heroVideoEl.paused) {
 							heroVideoEl.pause();
+						}
+					}
+
+					// Reproducir video de Iguana solo al llegar con el scroll y pausar al salir
+					if (iguanaVideoEl) {
+						if (p >= 0.54 && p < 0.94) {
+							if (iguanaVideoEl.paused) {
+								var ip = iguanaVideoEl.play();
+								if (ip && typeof ip.catch === 'function') ip.catch(function () {});
+							}
+						} else if (!iguanaVideoEl.paused) {
+							iguanaVideoEl.pause();
 						}
 					}
 
