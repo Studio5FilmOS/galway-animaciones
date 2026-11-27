@@ -176,7 +176,26 @@
 
 		protectMenuDom();
 
+		function readSavedLang() {
+			try {
+				var v = window.localStorage.getItem('gw_lang');
+				return (v === 'en' || v === 'es') ? v : '';
+			} catch (e) {
+				return '';
+			}
+		}
+
+		function writeSavedLang(lang) {
+			try {
+				window.localStorage.setItem('gw_lang', lang);
+			} catch (e) {}
+		}
+
 		function getCurrentLang() {
+			var saved = readSavedLang();
+			if (saved) {
+				return saved;
+			}
 			var m = document.cookie.match(/(?:^|;\s*)googtrans=([^;]+)/);
 			if (m && m[1]) {
 				var val = decodeURIComponent(m[1]);
@@ -194,18 +213,37 @@
 		function setGoogTransCookie(lang) {
 			var host = window.location.hostname || '';
 			var baseDomain = host.replace(/^www\./i, '');
+			var pathname = window.location.pathname || '/';
+			var rawDomains = ['', host, '.' + host, baseDomain, '.' + baseDomain];
+			var domains = [];
+			rawDomains.forEach(function (d) {
+				if (d !== '.' && domains.indexOf(d) === -1) {
+					domains.push(d);
+				}
+			});
+
+			var trimmedPath = pathname.replace(/\/$/, '') || '/';
+			var rawPaths = ['/', pathname, trimmedPath];
+			var paths = [];
+			rawPaths.forEach(function (p) {
+				if (p && paths.indexOf(p) === -1) {
+					paths.push(p);
+				}
+			});
+
+			var exp = 'max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+			domains.forEach(function (d) {
+				var domPart = d ? '; domain=' + d : '';
+				paths.forEach(function (p) {
+					document.cookie = 'googtrans=; path=' + p + domPart + '; ' + exp;
+					document.cookie = 'googtrans=/en/en; path=' + p + domPart + '; ' + exp;
+				});
+			});
+
 			if (lang === 'es') {
 				document.cookie = 'googtrans=/en/es; path=/; SameSite=Lax';
 				if (baseDomain && baseDomain.indexOf('.') !== -1) {
 					document.cookie = 'googtrans=/en/es; path=/; domain=.' + baseDomain + '; SameSite=Lax';
-				}
-			} else {
-				var exp = 'max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-				document.cookie = 'googtrans=; path=/; ' + exp;
-				document.cookie = 'googtrans=/en/en; path=/; ' + exp;
-				if (baseDomain && baseDomain.indexOf('.') !== -1) {
-					document.cookie = 'googtrans=; path=/; domain=.' + baseDomain + '; ' + exp;
-					document.cookie = 'googtrans=/en/en; path=/; domain=.' + baseDomain + '; ' + exp;
 				}
 			}
 		}
@@ -282,9 +320,12 @@
 		var initialLang = getCurrentLang();
 		syncButtons(initialLang);
 		if (initialLang === 'es') {
+			setGoogTransCookie('es');
 			loadGoogleTranslate(function () {
 				applyMenuLabels('es');
 			});
+		} else {
+			setGoogTransCookie('en');
 		}
 
 		buttons.forEach(function (btn) {
@@ -296,6 +337,7 @@
 				if (targetLang === current) return;
 
 				if (targetLang === 'es') {
+					writeSavedLang('es');
 					setGoogTransCookie('es');
 					syncButtons('es');
 					loadGoogleTranslate(function (combo) {
@@ -310,6 +352,13 @@
 						}
 					});
 				} else {
+					writeSavedLang('en');
+					setGoogTransCookie('en');
+					var combo = document.querySelector('select.goog-te-combo');
+					if (combo) {
+						combo.value = 'en';
+						combo.dispatchEvent(new Event('change'));
+					}
 					setGoogTransCookie('en');
 					syncButtons('en');
 					window.location.reload();
