@@ -146,124 +146,383 @@ html.lenis body {
 	}
 }
 
-/* 3. Header fijo global + Barra Footer fija siempre abajo con efecto glassmorphism */
-.gw-header-glass,
-.g-112c2c1 {
-	transition: background-color 0.4s cubic-bezier(0.22, 1, 0.36, 1), backdrop-filter 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, padding 0.35s ease, opacity 0.3s ease;
+/* 3. Ocultar encabezados, menús y barras footer duplicados de Elementor en frontend */
+body.galway-anim-enabled:not(.elementor-editor-active) .gw-header-glass,
+body.galway-anim-enabled:not(.elementor-editor-active) .g-112c2c1,
+body.galway-anim-enabled:not(.elementor-editor-active) [data-id="22da55f4"],
+body.galway-anim-enabled:not(.elementor-editor-active) [data-id="69ca67f5"],
+body.galway-anim-enabled:not(.elementor-editor-active) [data-id="7eb563f8"],
+body.galway-anim-enabled:not(.elementor-editor-active) [data-id="1730cee0"],
+body.galway-anim-enabled:not(.elementor-editor-active) .gw-menu-overlay,
+body.galway-anim-enabled:not(.elementor-editor-active) .g-e1203d2,
+body.galway-anim-enabled:not(.elementor-editor-active) [data-id="7def9b3"],
+body.galway-anim-enabled:not(.elementor-editor-active) [data-id="c5cb00d"],
+body.galway-anim-enabled:not(.elementor-editor-active) [data-id="5d1569de"],
+body.galway-anim-enabled:not(.elementor-editor-active) [data-id="24a6bc31"] {
+	display: none !important;
 }
 
-body.galway-anim-enabled:not(.elementor-editor-active) .gw-header-fixed {
-	position: fixed !important;
-	top: 0 !important;
-	left: 0 !important;
-	right: 0 !important;
-	width: 100% !important;
-	z-index: 9500 !important;
-	box-sizing: border-box !important;
-	padding: 16px 56px !important;
-	align-items: center !important;
+/* 3b. Header Global Unificado (idéntico en todas las páginas) */
+.gw-global-header {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	width: 100%;
+	z-index: 9500;
+	box-sizing: border-box;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 16px 56px;
+	background: transparent;
 	border-bottom: 1px solid transparent;
 	transition: background-color 0.4s cubic-bezier(0.22, 1, 0.36, 1), backdrop-filter 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, padding 0.35s ease, opacity 0.3s ease;
 }
 
-body.galway-anim-enabled:not(.elementor-editor-active) .gw-header-fixed img {
-	transition: height 0.35s ease, width 0.35s ease;
-}
-
-body.admin-bar.galway-anim-enabled:not(.elementor-editor-active) .gw-header-fixed {
-	top: 32px !important;
+body.admin-bar .gw-global-header {
+	top: 32px;
 }
 
 @media (max-width: 782px) {
-	body.admin-bar.galway-anim-enabled:not(.elementor-editor-active) .gw-header-fixed {
-		top: 46px !important;
+	body.admin-bar .gw-global-header {
+		top: 46px;
 	}
 }
 
-body.galway-anim-enabled:not(.elementor-editor-active) .gw-header-fixed.is-scrolled {
-	background-color: rgba(6, 60, 99, 0.56) !important;
-	backdrop-filter: blur(18px) saturate(145%) !important;
-	-webkit-backdrop-filter: blur(18px) saturate(145%) !important;
-	border-bottom-color: rgba(255, 255, 255, 0.16) !important;
-	box-shadow: 0 8px 28px rgba(2, 18, 34, 0.22) !important;
-	padding: 8px 56px !important;
+.gw-global-header.is-scrolled {
+	background-color: rgba(6, 60, 99, 0.56);
+	backdrop-filter: blur(18px) saturate(145%);
+	-webkit-backdrop-filter: blur(18px) saturate(145%);
+	border-bottom-color: rgba(255, 255, 255, 0.16);
+	box-shadow: 0 8px 28px rgba(2, 18, 34, 0.22);
+	padding: 9px 56px;
 }
 
-body.galway-anim-enabled:not(.elementor-editor-active) .gw-header-fixed.is-scrolled img {
-	height: 30px !important;
-	width: auto !important;
-	max-height: 30px !important;
+.gw-gh-brand {
+	display: inline-flex;
+	align-items: center;
+	gap: 12px;
+	text-decoration: none;
+	color: #ffffff;
+}
+
+.gw-gh-logo {
+	height: 38px;
+	width: auto;
+	display: block;
+	transition: height 0.35s ease;
+}
+
+.gw-global-header.is-scrolled .gw-gh-logo {
+	height: 28px;
+}
+
+.gw-gh-since {
+	font-family: 'Avenir', sans-serif;
+	font-size: 11px;
+	font-weight: 400;
+	letter-spacing: 0.16em;
+	color: rgba(255, 255, 255, 0.92);
+	white-space: nowrap;
+}
+
+.gw-gh-right {
+	display: inline-flex;
+	align-items: center;
+	gap: 22px;
+}
+
+.gw-gh-lang {
+	font-family: 'Avenir', sans-serif;
+	font-size: 12px;
+	font-weight: 400;
+	letter-spacing: 0.14em;
+	color: #ffffff;
+	white-space: nowrap;
+}
+
+.gw-gh-menu-btn {
+	background: transparent !important;
+	border: none !important;
+	padding: 4px !important;
+	margin: 0 !important;
+	color: #ffffff !important;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: none !important;
+	transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.gw-gh-menu-btn:hover {
+	transform: scale(1.08);
+	background: transparent !important;
 }
 
 @media (max-width: 767px) {
-	body.galway-anim-enabled:not(.elementor-editor-active) .gw-header-fixed {
-		padding: 12px 20px !important;
+	.gw-global-header {
+		padding: 12px 20px;
 	}
-	body.galway-anim-enabled:not(.elementor-editor-active) .gw-header-fixed.is-scrolled {
-		padding: 8px 20px !important;
+	.gw-global-header.is-scrolled {
+		padding: 8px 20px;
+	}
+	.gw-gh-logo {
+		height: 30px;
+	}
+	.gw-global-header.is-scrolled .gw-gh-logo {
+		height: 24px;
+	}
+	.gw-gh-since {
+		font-size: 10px;
+	}
+	.gw-gh-right {
+		gap: 14px;
 	}
 }
 
-body.galway-anim-enabled:not(.elementor-editor-active) .gw-header-fixed [data-id="73ef0ac1"] {
-	transition: opacity 0.25s ease;
+/* 3c. Menú Sánduche Overlay Unificado (incluye HOME + negrita en página activa) */
+.gw-global-menu {
+	position: fixed;
+	inset: 0;
+	width: 100vw;
+	height: 100vh;
+	z-index: 9999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 28px;
+	padding: 48px;
+	box-sizing: border-box;
+	background: rgba(4, 28, 52, 0.48);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.4s ease;
 }
 
-body.galway-anim-enabled:not(.elementor-editor-active) .gw-header-fixed.is-scrolled [data-id="73ef0ac1"] {
-	display: none !important;
+.gw-global-menu.is-open {
+	opacity: 1;
+	visibility: visible;
+	pointer-events: auto;
 }
 
-body.gw-menu-open .gw-header-fixed,
-body.gw-menu-open .gw-footer-bar-fixed {
+.gw-gm-cards {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(125px, 165px));
+	gap: 18px;
+	padding: 26px;
+	border-radius: 26px;
+	background: rgba(255, 255, 255, 0.78);
+	backdrop-filter: blur(18px);
+	-webkit-backdrop-filter: blur(18px);
+	box-shadow: 0 24px 60px rgba(2, 20, 38, 0.24);
+}
+
+.gw-gm-card {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+	text-decoration: none;
+	transition: transform 0.3s ease;
+}
+
+.gw-gm-card:hover {
+	transform: translateY(-4px);
+}
+
+.gw-gm-card img {
+	width: 100%;
+	aspect-ratio: 4 / 4.4;
+	object-fit: cover;
+	border-radius: 16px;
+	display: block;
+}
+
+.gw-gm-card-title {
+	font-family: 'Avenir', sans-serif;
+	font-size: 13px;
+	font-weight: 500;
+	letter-spacing: 0.08em;
+	line-height: 1.25;
+	color: #0b3e5e;
+	text-align: center;
+}
+
+.gw-gm-nav {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 18px;
+	min-width: 300px;
+	padding: 34px 44px 42px;
+	border-radius: 26px;
+	background: rgba(6, 60, 99, 0.78);
+	backdrop-filter: blur(18px);
+	-webkit-backdrop-filter: blur(18px);
+	border: 1px solid rgba(255, 255, 255, 0.16);
+	box-shadow: 0 24px 60px rgba(2, 20, 38, 0.32);
+	position: relative;
+}
+
+.gw-gm-close {
+	align-self: flex-end;
+	background: transparent !important;
+	border: none !important;
+	color: #ffffff !important;
+	cursor: pointer;
+	padding: 4px !important;
+	margin: 0 0 6px 0 !important;
+	display: inline-flex;
+	box-shadow: none !important;
+	transition: transform 0.25s ease;
+}
+
+.gw-gm-close:hover {
+	transform: scale(1.12);
+	background: transparent !important;
+}
+
+.gw-gm-link {
+	font-family: 'Avenir', sans-serif;
+	font-size: 19px;
+	font-weight: 300;
+	letter-spacing: 0.14em;
+	color: rgba(255, 255, 255, 0.78);
+	text-decoration: none;
+	text-align: center;
+	transition: color 0.25s ease, transform 0.25s ease;
+}
+
+.gw-gm-link:hover {
+	color: #ffffff;
+	transform: translateY(-1px);
+}
+
+.gw-gm-link.is-active {
+	font-weight: 700 !important;
+	color: #ffffff !important;
+	position: relative;
+}
+
+.gw-gm-link.is-active::after {
+	content: "";
+	display: block;
+	width: 28px;
+	height: 1.5px;
+	background: rgba(255, 255, 255, 0.85);
+	margin: 5px auto 0;
+}
+
+@media (max-width: 960px) {
+	.gw-global-menu {
+		padding: 20px;
+	}
+	.gw-gm-cards {
+		display: none;
+	}
+	.gw-gm-nav {
+		width: min(92vw, 340px);
+		min-width: 0;
+		padding: 28px 24px 36px;
+	}
+}
+
+/* 3d. Barra Inferior del Footer Fija Global con Glassmorphism Tinteado */
+.gw-global-footer-bar {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	width: 100%;
+	z-index: 9400;
+	box-sizing: border-box;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 8px 56px;
+	background-color: rgba(6, 60, 99, 0.56);
+	backdrop-filter: blur(18px) saturate(145%);
+	-webkit-backdrop-filter: blur(18px) saturate(145%);
+	border-top: 1px solid rgba(255, 255, 255, 0.16);
+	box-shadow: 0 -8px 28px rgba(2, 18, 34, 0.2);
+	transition: opacity 0.3s ease;
+}
+
+.gw-gfb-left {
+	display: inline-flex;
+	align-items: center;
+	gap: 14px;
+	text-decoration: none;
+	color: #ffffff;
+}
+
+.gw-gfb-logo {
+	height: 22px;
+	width: auto;
+	display: block;
+}
+
+.gw-gfb-slogan,
+.gw-gfb-since {
+	font-family: 'Avenir', sans-serif;
+	font-size: 11px;
+	font-weight: 400;
+	letter-spacing: 0.16em;
+	color: rgba(255, 255, 255, 0.94);
+	white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+	.gw-global-footer-bar {
+		padding: 8px 20px;
+	}
+	.gw-gfb-slogan,
+	.gw-gfb-since {
+		font-size: 9.5px;
+		letter-spacing: 0.1em;
+	}
+}
+
+body.gw-menu-open .gw-global-header,
+body.gw-menu-open .gw-global-footer-bar {
 	opacity: 0 !important;
 	pointer-events: none !important;
 }
 
-.gw-header-spacer {
-	width: 100%;
-	flex-shrink: 0;
-	pointer-events: none;
-}
-
-/* Barra inferior del Footer fija siempre con efecto glassmorphism tinteado */
-body.galway-anim-enabled:not(.elementor-editor-active) .gw-footer-bar-fixed {
-	position: fixed !important;
-	bottom: 0 !important;
-	left: 0 !important;
-	right: 0 !important;
-	width: 100% !important;
-	z-index: 9400 !important;
-	box-sizing: border-box !important;
-	padding: 9px 56px !important;
-	background-color: rgba(6, 60, 99, 0.56) !important;
-	backdrop-filter: blur(18px) saturate(145%) !important;
-	-webkit-backdrop-filter: blur(18px) saturate(145%) !important;
-	border-top: 1px solid rgba(255, 255, 255, 0.16) !important;
-	box-shadow: 0 -8px 28px rgba(2, 18, 34, 0.2) !important;
-	transition: opacity 0.3s ease;
-}
-
-body.galway-anim-enabled:not(.elementor-editor-active) .gw-footer-bar-fixed img {
-	height: 22px !important;
-	width: auto !important;
-	max-height: 22px !important;
-}
-
-@media (max-width: 767px) {
-	body.galway-anim-enabled:not(.elementor-editor-active) .gw-footer-bar-fixed {
-		padding: 8px 20px !important;
-		flex-direction: row !important;
-		gap: 10px !important;
-	}
-	body.galway-anim-enabled:not(.elementor-editor-active) .gw-footer-bar-fixed p {
-		font-size: 10px !important;
-		letter-spacing: 0.1em !important;
-	}
-}
-
-/* Respiro inferior cuando existe barra de footer fija para evitar solapes */
+/* Respiro inferior y alineación limpia en Heroes al usar Chrome Global Fijo */
 body.has-gw-fixed-footer .gw-hero-scene .e-background-video-content,
-body.has-gw-fixed-footer .g-8364edf > div {
-	padding-bottom: 66px !important;
+body.has-gw-fixed-footer .g-8364edf > div,
+body.has-gw-fixed-footer [data-id="7550633d"] {
+	justify-content: flex-end !important;
+	padding-bottom: 68px !important;
+}
+
+body.has-gw-fixed-footer [data-id="7cdc689b"] {
+	min-height: 0 !important;
+	flex: 1 1 auto !important;
+	justify-content: flex-end !important;
+	padding-top: 86px !important;
+}
+
+body.has-gw-fixed-footer [data-id="37923d7e"],
+body.has-gw-fixed-footer .elementor-element-37923d7e {
+	padding: 22px 24px 58px !important;
+}
+
+body.has-gw-fixed-footer [data-id="50944e60"] {
+	justify-content: center !important;
+	padding-top: 84px !important;
+	padding-bottom: 64px !important;
+}
+
+body.has-gw-fixed-footer [data-id="14b72820"] {
+	padding-top: 84px !important;
+	padding-bottom: 60px !important;
 }
 
 body.has-gw-fixed-footer [data-id="29d2969a"],
@@ -271,17 +530,12 @@ body.has-gw-fixed-footer .elementor-element-29d2969a {
 	padding-bottom: 72px !important;
 }
 
-body.has-gw-fixed-footer [data-id="37923d7e"],
-body.has-gw-fixed-footer .elementor-element-37923d7e {
-	padding-bottom: 62px !important;
-}
-
 body.has-gw-fixed-footer .gw-stage > .gw-footer-curtain {
 	padding-bottom: 52px !important;
 }
 
 body.has-gw-fixed-footer #ast-scroll-top {
-	bottom: 58px !important;
+	bottom: 56px !important;
 	right: 24px !important;
 	z-index: 9300 !important;
 }

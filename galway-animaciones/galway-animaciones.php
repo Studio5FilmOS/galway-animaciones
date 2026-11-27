@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Galway Animaciones Inmersivas
  * Description: Motor ligero de animaciones inmersivas (Lenis Smooth Scroll, GSAP ScrollTrigger, acordeón de pilares, menú overlay y entorno submarino) 100% compatible con Elementor Gratuito y Astra.
- * Version: 2.11.0
+ * Version: 2.12.0
  * Author: Studio 5 - Jesse Añazco
  * License: GPL-2.0+
  * Text Domain: galway-animaciones
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'GALWAY_ANIM_VERSION', '2.11.0' );
+define( 'GALWAY_ANIM_VERSION', '2.12.0' );
 define( 'GALWAY_ANIM_URL', plugin_dir_url( __FILE__ ) );
 
 /**
@@ -107,6 +107,7 @@ add_action( 'wp_enqueue_scripts', 'galway_anim_enqueue_assets', 99 );
 function galway_anim_body_class( $classes ) {
 	if ( ! is_admin() && ! galway_anim_is_elementor_editor() ) {
 		$classes[] = 'galway-anim-enabled';
+		$classes[] = 'has-gw-fixed-footer';
 	}
 	return $classes;
 }
@@ -455,3 +456,114 @@ function galway_anim_render_audio_page() {
 	</script>
 	<?php
 }
+
+/**
+ * Renderiza Header, Menú Sánduche Overlay (con HOME + página activa en bold) y Barra Footer Glassmorphism unificados en todo el frontend.
+ */
+function galway_anim_render_global_chrome() {
+	if ( is_admin() || galway_anim_is_elementor_editor() ) {
+		return;
+	}
+
+	$req_path = '';
+	if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+		$parsed   = wp_parse_url( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ), PHP_URL_PATH );
+		$req_path = strtolower( trim( (string) $parsed, '/' ) );
+	}
+
+	$active_key = '';
+	if ( false !== strpos( $req_path, 'journeys' ) ) {
+		$active_key = 'journeys';
+	} elseif ( false !== strpos( $req_path, 'about-us' ) ) {
+		$active_key = 'about-us';
+	} elseif ( false !== strpos( $req_path, 'islands' ) ) {
+		$active_key = 'the-islands';
+	} elseif ( false !== strpos( $req_path, 'community' ) ) {
+		$active_key = 'community';
+	} elseif ( false !== strpos( $req_path, 'mainland' ) ) {
+		$active_key = 'mainland-ecuador';
+	} elseif ( is_front_page() || is_home() || '' === $req_path || 'home-2' === $req_path || 'home' === $req_path ) {
+		$active_key = 'home';
+	}
+
+	$home_url     = 'https://www.galway.com.ec/home-2/';
+	$journeys_url = 'https://www.galway.com.ec/journeys/';
+	$about_url    = 'https://www.galway.com.ec/about-us/';
+	$logo_url     = 'https://www.galway.com.ec/wp-content/uploads/2026/11/gw-logo-blanco.png';
+
+	$nav_items = array(
+		array( 'key' => 'home', 'label' => 'HOME', 'url' => $home_url, 'class' => '' ),
+		array( 'key' => 'journeys', 'label' => 'JOURNEYS', 'url' => $journeys_url, 'class' => 'gw-journeys-trigger' ),
+		array( 'key' => 'the-islands', 'label' => 'THE ISLANDS', 'url' => '#', 'class' => '' ),
+		array( 'key' => 'community', 'label' => 'COMMUNITY', 'url' => '#', 'class' => '' ),
+		array( 'key' => 'mainland-ecuador', 'label' => 'MAINLAND ECUADOR', 'url' => '#', 'class' => '' ),
+		array( 'key' => 'about-us', 'label' => 'ABOUT US', 'url' => $about_url, 'class' => '' ),
+	);
+	?>
+	<header class="gw-global-header" role="banner">
+		<a class="gw-gh-brand" href="<?php echo esc_url( $home_url ); ?>">
+			<img src="<?php echo esc_url( $logo_url ); ?>" alt="Galapagos Your Own Way" class="gw-gh-logo">
+			<span class="gw-gh-since">SINCE 2006</span>
+		</a>
+		<div class="gw-gh-right">
+			<span class="gw-gh-lang">EN | ES</span>
+			<button type="button" class="gw-gh-menu-btn gw-menu-toggle" aria-label="Abrir menú">
+				<svg width="24" height="18" viewBox="0 0 24 18" fill="none" aria-hidden="true">
+					<line x1="0" y1="2" x2="24" y2="2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+					<line x1="0" y1="9" x2="24" y2="9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+					<line x1="0" y1="16" x2="24" y2="16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+				</svg>
+			</button>
+		</div>
+	</header>
+
+	<div class="gw-global-menu" aria-hidden="true">
+		<div class="gw-gm-cards">
+			<a class="gw-gm-card" href="<?php echo esc_url( $journeys_url ); ?>">
+				<img src="https://www.galway.com.ec/wp-content/uploads/2026/11/card-on-board.webp" alt="On-Board Cruises">
+				<span class="gw-gm-card-title">ON-BOARD</span>
+			</a>
+			<a class="gw-gm-card" href="<?php echo esc_url( $journeys_url ); ?>">
+				<img src="https://www.galway.com.ec/wp-content/uploads/2026/11/card-island-hopping.webp" alt="Island Hopping">
+				<span class="gw-gm-card-title">ISLAND<br>HOPPING</span>
+			</a>
+			<a class="gw-gm-card" href="<?php echo esc_url( $journeys_url ); ?>">
+				<img src="https://www.galway.com.ec/wp-content/uploads/2026/11/card-diving.webp" alt="Diving">
+				<span class="gw-gm-card-title">DIVING</span>
+			</a>
+			<a class="gw-gm-card" href="<?php echo esc_url( $journeys_url ); ?>">
+				<img src="https://www.galway.com.ec/wp-content/uploads/2026/11/card-education.webp" alt="Education">
+				<span class="gw-gm-card-title">EDUCATION</span>
+			</a>
+		</div>
+		<nav class="gw-gm-nav" aria-label="Menú principal">
+			<button type="button" class="gw-gm-close gw-menu-close" aria-label="Cerrar menú">
+				<svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+					<line x1="3" y1="3" x2="17" y2="17" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+					<line x1="17" y1="3" x2="3" y2="17" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+				</svg>
+			</button>
+			<?php foreach ( $nav_items as $item ) :
+				$classes = array( 'gw-gm-link' );
+				if ( ! empty( $item['class'] ) ) {
+					$classes[] = $item['class'];
+				}
+				if ( $active_key === $item['key'] ) {
+					$classes[] = 'is-active';
+				}
+				?>
+				<a class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" href="<?php echo esc_url( $item['url'] ); ?>" data-gw-nav="<?php echo esc_attr( $item['key'] ); ?>"><?php echo esc_html( $item['label'] ); ?></a>
+			<?php endforeach; ?>
+		</nav>
+	</div>
+
+	<div class="gw-global-footer-bar" role="contentinfo">
+		<a class="gw-gfb-left" href="<?php echo esc_url( $home_url ); ?>">
+			<img src="<?php echo esc_url( $logo_url ); ?>" alt="GW" class="gw-gfb-logo">
+			<span class="gw-gfb-slogan">GALÁPAGOS, YOUR OWN WAY.</span>
+		</a>
+		<span class="gw-gfb-since">SINCE 2006</span>
+	</div>
+	<?php
+}
+add_action( 'wp_footer', 'galway_anim_render_global_chrome', 5 );

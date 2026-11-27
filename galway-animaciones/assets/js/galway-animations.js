@@ -52,9 +52,6 @@
 		// 1b. Header fijo global con glassmorphism al hacer scroll
 		initFixedHeader(lenis);
 
-		// 1c. Barra inferior del Footer fija siempre con aspecto glassmorphism
-		initFixedFooterBar();
-
 		// 2. Menú Sánduche Overlay + Panel de 4 tarjetas (JOURNEYS)
 		initMenuOverlay(lenis);
 
@@ -79,27 +76,13 @@
 	});
 
 	/**
-	 * Fija el header oficial de Galway en todas las páginas y activa glassmorphism al hacer scroll.
+	 * Sincroniza el Header global unificado con efecto glassmorphism al hacer scroll.
 	 */
 	function initFixedHeader(lenis) {
-		var header = document.querySelector('.gw-header-glass, .g-112c2c1, [data-id="22da55f4"], [data-id="69ca67f5"], [data-id="7eb563f8"]');
-		if (!header || header.classList.contains('gw-header-fixed')) {
+		var header = document.querySelector('.gw-global-header');
+		if (!header) {
 			return;
 		}
-
-		var headerHeight = header.offsetHeight || 0;
-		var parent = header.parentNode;
-		if (parent && headerHeight > 0) {
-			var spacer = document.createElement('div');
-			spacer.className = 'gw-header-spacer';
-			spacer.setAttribute('aria-hidden', 'true');
-			spacer.style.height = headerHeight + 'px';
-			parent.insertBefore(spacer, header);
-		}
-
-		var rootContainer = header.closest('.elementor') || document.body;
-		rootContainer.insertBefore(header, rootContainer.firstChild);
-		header.classList.add('gw-header-fixed');
 
 		function syncHeaderState(scrollEvt) {
 			var y = (scrollEvt && typeof scrollEvt.scroll === 'number')
@@ -119,42 +102,51 @@
 	}
 
 	/**
-	 * Fija siempre abajo la barra del Footer con efecto glassmorphism tinteado.
-	 */
-	function initFixedFooterBar() {
-		var footerEl = document.querySelector('[data-id="28221e0a"], .elementor-element-28221e0a, .gw-footer-scene, .g-1a0a9f6');
-		if (!footerEl) {
-			return;
-		}
-
-		var footerBar = footerEl.lastElementChild;
-		if (!footerBar || footerBar.classList.contains('gw-footer-bar-fixed')) {
-			return;
-		}
-
-		var rootContainer = footerEl.closest('.elementor') || document.body;
-		rootContainer.appendChild(footerBar);
-		footerBar.classList.add('gw-footer-bar-fixed');
-		document.body.classList.add('has-gw-fixed-footer');
-	}
-
-	/**
-	 * Controla la apertura/cierre del menú overlay y la aparición del panel Journeys.
+	 * Controla el Menú Sánduche Overlay unificado y marca en bold la página activa.
 	 */
 	function initMenuOverlay(lenis) {
-		var overlay = document.querySelector('.gw-menu-overlay, .g-e1203d2');
+		var overlay = document.querySelector('.gw-global-menu') || document.querySelector('.gw-menu-overlay, .g-e1203d2');
 		var toggles = document.querySelectorAll('.gw-menu-toggle, .g-22674b6');
 		var closeBtns = document.querySelectorAll('.gw-menu-close, .g-9e390e4');
-		var journeysTrigger = document.querySelector('.gw-journeys-trigger, .g-be34468');
+		var journeysTrigger = overlay ? overlay.querySelector('.gw-journeys-trigger, .g-be34468') : null;
 
 		if (!overlay || !toggles.length) {
 			return;
 		}
 
+		// Respaldo en cliente para marcar siempre en bold la página actual (compatible con caché)
+		var path = (window.location.pathname || '/').toLowerCase();
+		var activeKey = '';
+		if (path.indexOf('journeys') !== -1) {
+			activeKey = 'journeys';
+		} else if (path.indexOf('about-us') !== -1) {
+			activeKey = 'about-us';
+		} else if (path.indexOf('islands') !== -1) {
+			activeKey = 'the-islands';
+		} else if (path.indexOf('community') !== -1) {
+			activeKey = 'community';
+		} else if (path.indexOf('mainland') !== -1) {
+			activeKey = 'mainland-ecuador';
+		} else if (path === '/' || path === '/home-2/' || path === '/home-2' || path === '/home/' || path === '/home') {
+			activeKey = 'home';
+		}
+
+		var navLinks = overlay.querySelectorAll('.gw-gm-link');
+		navLinks.forEach(function (link) {
+			var navKey = link.getAttribute('data-gw-nav') || '';
+			link.classList.toggle('is-active', !!activeKey && navKey === activeKey);
+			if (link.getAttribute('href') === '#') {
+				link.addEventListener('click', function (e) {
+					e.preventDefault();
+				});
+			}
+		});
+
 		function openMenu(e) {
 			if (e) e.preventDefault();
 			overlay.classList.add('is-open');
 			overlay.classList.add('journeys-active');
+			overlay.setAttribute('aria-hidden', 'false');
 			document.body.classList.add('gw-menu-open');
 			if (lenis) lenis.stop();
 		}
@@ -163,6 +155,7 @@
 			if (e) e.preventDefault();
 			overlay.classList.remove('is-open');
 			overlay.classList.remove('journeys-active');
+			overlay.setAttribute('aria-hidden', 'true');
 			document.body.classList.remove('gw-menu-open');
 			if (lenis) lenis.start();
 		}
