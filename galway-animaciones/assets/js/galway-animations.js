@@ -633,6 +633,7 @@
 				footerEl.classList.add('gw-footer-curtain');
 				singleStage.appendChild(footerEl);
 				gsap.set(footerEl, { zIndex: 2, yPercent: 102 });
+				resetSceneReveal(footerEl);
 
 				state.scenes = [allScenes[0], footerEl];
 				state.desktopOffsets = [0, 1];
@@ -646,17 +647,26 @@
 						pin: true,
 						pinSpacing: true,
 						scrub: 0.9,
-						anticipatePin: 1,
-						onUpdate: function (self) {
-							var activeSingle = self.progress < 0.48 ? 0 : 1;
-							if (activeSingle !== lastSingleIdx) {
-								lastSingleIdx = activeSingle;
-								playSceneReveal(state.scenes[activeSingle]);
-							}
-							if (state.setDotCallback) {
-								state.setDotCallback(activeSingle);
-							}
+						anticipatePin: 1
+					}
+				});
+
+				singleTl.eventCallback('onUpdate', function () {
+					var tp = singleTl.progress();
+					if (tp <= 0.12 && footerEl.dataset.gwNeedsReset === '1') {
+						footerEl.dataset.gwNeedsReset = '0';
+						resetSceneReveal(footerEl);
+					}
+					var activeSingle = tp < 0.70 ? 0 : 1;
+					if (activeSingle !== lastSingleIdx) {
+						lastSingleIdx = activeSingle;
+						if (activeSingle === 1) {
+							footerEl.dataset.gwNeedsReset = '1';
 						}
+						playSceneReveal(state.scenes[activeSingle]);
+					}
+					if (state.setDotCallback) {
+						state.setDotCallback(activeSingle);
 					}
 				});
 
@@ -940,9 +950,13 @@
 			var totalUnits = cursor;
 			var genOffsets = [0];
 			var enterThresholds = [0];
+			var resetThresholds = [0];
 			segments.forEach(function (seg) {
+				var segDur = seg.end - seg.start;
 				genOffsets.push(seg.index === totalCurtains - 1 ? 1 : seg.end / totalUnits);
-				enterThresholds.push((seg.start + 0.18) / totalUnits);
+				enterThresholds.push((seg.start + segDur * 0.72) / totalUnits);
+				resetThresholds.push(seg.start / totalUnits);
+				resetSceneReveal(seg.el);
 			});
 			state.desktopOffsets = genOffsets;
 
@@ -957,26 +971,37 @@
 					pin: true,
 					pinSpacing: true,
 					scrub: 0.95,
-					anticipatePin: 1,
-					onUpdate: function (self) {
-						var p = self.progress;
-						var activeIdx = 0;
+					anticipatePin: 1
+				}
+			});
 
-						for (var k = 1; k < enterThresholds.length; k++) {
-							if (p >= enterThresholds[k]) {
-								activeIdx = k;
-							}
-						}
+			genTl.eventCallback('onUpdate', function () {
+				var tp = genTl.progress();
+				var activeIdx = 0;
 
-						if (activeIdx !== lastGenIdx) {
-							lastGenIdx = activeIdx;
-							playSceneReveal(curtains[activeIdx]);
-						}
-
-						if (state.setDotCallback) {
-							state.setDotCallback(activeIdx);
-						}
+				for (var r = 1; r < resetThresholds.length; r++) {
+					if (tp <= resetThresholds[r] && curtains[r].dataset.gwNeedsReset === '1') {
+						curtains[r].dataset.gwNeedsReset = '0';
+						resetSceneReveal(curtains[r]);
 					}
+				}
+
+				for (var k = 1; k < enterThresholds.length; k++) {
+					if (tp >= enterThresholds[k]) {
+						activeIdx = k;
+					}
+				}
+
+				if (activeIdx !== lastGenIdx) {
+					lastGenIdx = activeIdx;
+					if (activeIdx >= 1) {
+						curtains[activeIdx].dataset.gwNeedsReset = '1';
+					}
+					playSceneReveal(curtains[activeIdx]);
+				}
+
+				if (state.setDotCallback) {
+					state.setDotCallback(activeIdx);
 				}
 			});
 
@@ -1012,6 +1037,9 @@
 		if (heroScene) {
 			playSceneReveal(heroScene);
 		}
+		if (curtains[2]) resetSceneReveal(curtains[2]);
+		if (curtains[3]) resetSceneReveal(curtains[3]);
+		if (curtains[4]) resetSceneReveal(curtains[4]);
 
 		var iguanaBg = document.querySelector('.gw-parallax-bg, .g-f7a815f');
 		if (iguanaBg) {
@@ -1034,60 +1062,78 @@
 				pin: true,
 				pinSpacing: true,
 				scrub: 0.95,
-				anticipatePin: 1,
-				onUpdate: function (self) {
-					var p = self.progress;
+				anticipatePin: 1
+			}
+		});
 
-					// Solo pausar los videos de Pilares si salimos de su cortina (en la cortina los controla el hover)
-					if (pillars.length && (p < 0.08 || p > 0.54)) {
-						setActivePillar(-1);
+		var homeResetMap = [
+			{ idx: 2, threshold: 0.36 },
+			{ idx: 3, threshold: 0.64 },
+			{ idx: 4, threshold: 0.88 }
+		];
+
+		tl.eventCallback('onUpdate', function () {
+			var tp = tl.progress();
+
+			// Solo pausar los videos de Pilares si salimos de su cortina (en la cortina los controla el hover)
+			if (pillars.length && (tp < 0.08 || tp > 0.54)) {
+				setActivePillar(-1);
+			}
+
+			// Pausar video del Hero fuera de vista
+			if (heroVideoEl) {
+				heroVideoEl.muted = true;
+				heroVideoEl.playsInline = true;
+				if (tp < 0.24) {
+					if (heroVideoEl.paused) {
+						var hp = heroVideoEl.play();
+						if (hp && typeof hp.catch === 'function') hp.catch(function () {});
 					}
-
-					// Pausar video del Hero fuera de vista
-					if (heroVideoEl) {
-						heroVideoEl.muted = true;
-						heroVideoEl.playsInline = true;
-						if (p < 0.24) {
-							if (heroVideoEl.paused) {
-								var hp = heroVideoEl.play();
-								if (hp && typeof hp.catch === 'function') hp.catch(function () {});
-							}
-						} else if (!heroVideoEl.paused) {
-							heroVideoEl.pause();
-						}
-					}
-
-					// Reproducir video de Iguana solo al llegar con el scroll y pausar al salir
-					if (iguanaVideoEl) {
-						if (p >= 0.34 && p < 0.80) {
-							if (iguanaVideoEl.paused) {
-								var ip = iguanaVideoEl.play();
-								if (ip && typeof ip.catch === 'function') ip.catch(function () {});
-							}
-						} else if (!iguanaVideoEl.paused) {
-							iguanaVideoEl.pause();
-						}
-					}
-
-					var homeActiveIdx = 0;
-					if (p < 0.14) homeActiveIdx = 0;
-					else if (p < 0.44) homeActiveIdx = 1;
-					else if (p < 0.71) homeActiveIdx = 2;
-					else if (p < 0.92) homeActiveIdx = 3;
-					else homeActiveIdx = 4;
-
-					if (homeActiveIdx !== lastHomeIdx) {
-						lastHomeIdx = homeActiveIdx;
-						if (homeActiveIdx !== 1 && curtains[homeActiveIdx]) {
-							playSceneReveal(curtains[homeActiveIdx]);
-						}
-					}
-
-					// Actualizar indicador lateral de escenas
-					if (state.setDotCallback) {
-						state.setDotCallback(homeActiveIdx);
-					}
+				} else if (!heroVideoEl.paused) {
+					heroVideoEl.pause();
 				}
+			}
+
+			// Reproducir video de Iguana solo al llegar con el scroll y pausar al salir
+			if (iguanaVideoEl) {
+				if (tp >= 0.34 && tp < 0.80) {
+					if (iguanaVideoEl.paused) {
+						var ip = iguanaVideoEl.play();
+						if (ip && typeof ip.catch === 'function') ip.catch(function () {});
+					}
+				} else if (!iguanaVideoEl.paused) {
+					iguanaVideoEl.pause();
+				}
+			}
+
+			homeResetMap.forEach(function (item) {
+				var el = curtains[item.idx];
+				if (el && tp <= item.threshold && el.dataset.gwNeedsReset === '1') {
+					el.dataset.gwNeedsReset = '0';
+					resetSceneReveal(el);
+				}
+			});
+
+			var homeActiveIdx = 0;
+			if (tp < 0.14) homeActiveIdx = 0;
+			else if (tp < 0.47) homeActiveIdx = 1;
+			else if (tp < 0.74) homeActiveIdx = 2;
+			else if (tp < 0.96) homeActiveIdx = 3;
+			else homeActiveIdx = 4;
+
+			if (homeActiveIdx !== lastHomeIdx) {
+				lastHomeIdx = homeActiveIdx;
+				if (homeActiveIdx !== 1 && curtains[homeActiveIdx]) {
+					if (homeActiveIdx >= 2) {
+						curtains[homeActiveIdx].dataset.gwNeedsReset = '1';
+					}
+					playSceneReveal(curtains[homeActiveIdx]);
+				}
+			}
+
+			// Actualizar indicador lateral de escenas
+			if (state.setDotCallback) {
+				state.setDotCallback(homeActiveIdx);
 			}
 		});
 
