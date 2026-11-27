@@ -123,6 +123,59 @@
 		var buttons = switcher.querySelectorAll('.gw-lang-btn');
 		var gtLoaded = false;
 
+		var navDict = {
+			home: { en: 'HOME', es: 'INICIO' },
+			journeys: { en: 'JOURNEYS', es: 'VIAJES' },
+			'the-islands': { en: 'THE ISLANDS', es: 'LAS ISLAS' },
+			community: { en: 'COMMUNITY', es: 'COMUNIDAD' },
+			'mainland-ecuador': { en: 'MAINLAND ECUADOR', es: 'ECUADOR CONTINENTAL' },
+			'about-us': { en: 'ABOUT US', es: 'NOSOTROS' }
+		};
+		var cardDict = [
+			{ en: 'ON-BOARD', es: 'A BORDO' },
+			{ en: 'ISLAND<br>HOPPING', es: 'ISLAND<br>HOPPING' },
+			{ en: 'DIVING', es: 'BUCEO' },
+			{ en: 'EDUCATION', es: 'EDUCACIÓN' }
+		];
+
+		function protectMenuDom() {
+			var menuEl = document.querySelector('.gw-global-menu');
+			if (menuEl) {
+				menuEl.classList.add('notranslate');
+				menuEl.setAttribute('translate', 'no');
+				menuEl.querySelectorAll('.gw-gm-link, .gw-gm-card-title').forEach(function (el) {
+					el.classList.add('notranslate');
+					el.setAttribute('translate', 'no');
+				});
+			}
+		}
+
+		function applyMenuLabels(lang) {
+			protectMenuDom();
+			var keyLang = lang === 'es' ? 'es' : 'en';
+
+			document.querySelectorAll('.gw-global-menu .gw-gm-link').forEach(function (el) {
+				var key = el.getAttribute('data-gw-nav') || '';
+				var attrVal = el.getAttribute('data-label-' + keyLang);
+				var dictVal = navDict[key] ? navDict[key][keyLang] : '';
+				var nextText = dictVal || attrVal;
+				if (nextText) {
+					el.textContent = nextText;
+				}
+			});
+
+			document.querySelectorAll('.gw-global-menu .gw-gm-card-title').forEach(function (el, idx) {
+				var attrVal = el.getAttribute('data-label-' + keyLang);
+				var dictVal = cardDict[idx] ? cardDict[idx][keyLang] : '';
+				var nextHtml = dictVal || attrVal;
+				if (nextHtml) {
+					el.innerHTML = nextHtml;
+				}
+			});
+		}
+
+		protectMenuDom();
+
 		function getCurrentLang() {
 			var m = document.cookie.match(/(?:^|;\s*)googtrans=([^;]+)/);
 			if (m && m[1]) {
@@ -130,6 +183,10 @@
 				if (/\/es$/i.test(val)) {
 					return 'es';
 				}
+			}
+			var htmlEl = document.documentElement;
+			if (htmlEl && (htmlEl.classList.contains('translated-ltr') || /^es\b/i.test(htmlEl.lang || ''))) {
+				return 'es';
 			}
 			return 'en';
 		}
@@ -157,12 +214,7 @@
 			buttons.forEach(function (btn) {
 				btn.classList.toggle('is-active', btn.getAttribute('data-gw-lang') === lang);
 			});
-			document.querySelectorAll('[data-label-en][data-label-es]').forEach(function (el) {
-				var txt = lang === 'es' ? el.getAttribute('data-label-es') : el.getAttribute('data-label-en');
-				if (txt) {
-					el.innerHTML = txt;
-				}
-			});
+			applyMenuLabels(lang);
 		}
 
 		function waitForCombo(attemptsLeft, cb) {
@@ -211,10 +263,28 @@
 			}
 		}
 
+		if ('MutationObserver' in window) {
+			var htmlObserver = new MutationObserver(function () {
+				applyMenuLabels(getCurrentLang());
+			});
+			htmlObserver.observe(document.documentElement, {
+				attributes: true,
+				attributeFilter: ['class', 'lang']
+			});
+		}
+
+		document.querySelectorAll('.gw-menu-toggle, .g-22674b6').forEach(function (btn) {
+			btn.addEventListener('click', function () {
+				applyMenuLabels(getCurrentLang());
+			});
+		});
+
 		var initialLang = getCurrentLang();
 		syncButtons(initialLang);
 		if (initialLang === 'es') {
-			loadGoogleTranslate();
+			loadGoogleTranslate(function () {
+				applyMenuLabels('es');
+			});
 		}
 
 		buttons.forEach(function (btn) {
@@ -232,6 +302,9 @@
 						if (combo) {
 							combo.value = 'es';
 							combo.dispatchEvent(new Event('change'));
+							setTimeout(function () {
+								applyMenuLabels('es');
+							}, 400);
 						} else {
 							window.location.reload();
 						}
