@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Galway Animaciones Inmersivas
  * Description: Motor ligero de animaciones inmersivas (Lenis Smooth Scroll, GSAP ScrollTrigger, acordeón de pilares, menú overlay y entorno submarino) 100% compatible con Elementor Gratuito y Astra.
- * Version: 2.14.4
+ * Version: 2.15.0
  * Author: Studio 5 - Jesse Añazco
  * License: GPL-2.0+
  * Text Domain: galway-animaciones
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'GALWAY_ANIM_VERSION', '2.14.4' );
+define( 'GALWAY_ANIM_VERSION', '2.15.0' );
 define( 'GALWAY_ANIM_URL', plugin_dir_url( __FILE__ ) );
 
 /**
@@ -486,10 +486,11 @@ function galway_anim_render_global_chrome() {
 		$active_key = 'home';
 	}
 
-	$home_url     = 'https://www.galway.com.ec/home-2/';
-	$journeys_url = 'https://www.galway.com.ec/journeys/';
-	$about_url    = 'https://www.galway.com.ec/about-us/';
-	$logo_url     = 'https://www.galway.com.ec/wp-content/uploads/2026/11/gw-logo-blanco.png';
+	$home_url        = 'https://www.galway.com.ec/home-2/';
+	$journeys_url    = 'https://www.galway.com.ec/journeys/';
+	$about_url       = 'https://www.galway.com.ec/about-us/';
+	$header_logo_url = GALWAY_ANIM_URL . 'assets/img/gw-iso-blanco.png';
+	$logo_url        = 'https://www.galway.com.ec/wp-content/uploads/2026/11/gw-logo-blanco.png';
 
 	$nav_items = array(
 		array( 'key' => 'home', 'label_en' => 'HOME', 'label_es' => 'INICIO', 'url' => $home_url, 'class' => '' ),
@@ -502,8 +503,8 @@ function galway_anim_render_global_chrome() {
 	?>
 	<header class="gw-global-header" role="banner">
 		<a class="gw-gh-brand" href="<?php echo esc_url( $home_url ); ?>">
-			<img src="<?php echo esc_url( $logo_url ); ?>" alt="Galapagos Your Own Way" class="gw-gh-logo">
-			<span class="gw-gh-since notranslate" translate="no">SINCE 2006</span>
+			<img src="<?php echo esc_url( $header_logo_url ); ?>" alt="Galapagos Your Own Way" class="gw-gh-logo">
+			<span class="gw-gh-since notranslate" translate="no">GALWAY SINCE 2006</span>
 		</a>
 		<div class="gw-gh-right">
 			<div class="gw-gh-lang notranslate" translate="no" role="group" aria-label="Idioma">

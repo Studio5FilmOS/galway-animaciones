@@ -55,6 +55,9 @@
 		// 1c. Selector de idioma EN | ES automático con Google Translate invisible
 		initLanguageSwitcher();
 
+		// 1d. Contact Us clicable (WhatsApp, Email, Maps) + botón subir al inicio suave
+		initInteractiveContacts(lenis);
+
 		// 2. Menú Sánduche Overlay + Panel de 4 tarjetas (JOURNEYS)
 		initMenuOverlay(lenis);
 
@@ -350,6 +353,71 @@
 				}
 			});
 		});
+	}
+
+	/**
+	 * Convierte en enlaces clicables los teléfonos (WhatsApp), correo (mailto) y dirección (Maps) en Contact Us,
+	 * y sincroniza el botón de volver arriba (#ast-scroll-top) con Lenis.
+	 */
+	function initInteractiveContacts(lenis) {
+		var footers = document.querySelectorAll('[data-id="28221e0a"], .elementor-element-28221e0a, .gw-footer-scene, .g-1a0a9f6');
+		footers.forEach(function (footer) {
+			footer.querySelectorAll('p').forEach(function (p) {
+				if (p.dataset.gwLinked === '1' || p.querySelector('a')) {
+					return;
+				}
+				var html = p.innerHTML;
+				var text = p.textContent || '';
+
+				if (/\+593[\s\d-]+/.test(text)) {
+					var newHtml = html.replace(/((?:Cel\.\s*)?\+593[\s\d-]+\d)/i, function (match) {
+						var digits = match.replace(/\D/g, '');
+						if (digits.length < 11) return match;
+						var greeting = 'Hello, I would like information to plan a Galapagos trip.';
+						if (/Cristina/i.test(text)) {
+							greeting = 'Hello Cristina, I would like information to plan a Galapagos trip.';
+						} else if (/Roberta/i.test(text)) {
+							greeting = 'Hello Roberta, I would like information to plan a Galapagos trip.';
+						}
+						var waUrl = 'https://wa.me/' + digits + '?text=' + encodeURIComponent(greeting);
+						return '<a class="gw-contact-link notranslate" translate="no" href="' + waUrl + '" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp ' + match.replace(/"/g, '') + '">' + match + '</a>';
+					});
+					if (newHtml !== html) {
+						p.innerHTML = newHtml;
+						p.dataset.gwLinked = '1';
+					}
+					return;
+				}
+
+				if (/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(text)) {
+					var emailHtml = html.replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/, function (mail) {
+						return '<a class="gw-contact-link notranslate" translate="no" href="mailto:' + mail + '?subject=' + encodeURIComponent('Galapagos Trip Inquiry') + '">' + mail + '</a>';
+					});
+					if (emailHtml !== html) {
+						p.innerHTML = emailHtml;
+						p.dataset.gwLinked = '1';
+					}
+					return;
+				}
+
+				if (/PUERTO\s+AYORA/i.test(text)) {
+					p.innerHTML = '<a class="gw-contact-link" href="https://www.google.com/maps/search/?api=1&query=Puerto+Ayora,+Santa+Cruz,+Galapagos,+Ecuador" target="_blank" rel="noopener noreferrer">' + html + '</a>';
+					p.dataset.gwLinked = '1';
+				}
+			});
+		});
+
+		document.addEventListener('click', function (e) {
+			var topBtn = e.target && e.target.closest ? e.target.closest('#ast-scroll-top') : null;
+			if (!topBtn) return;
+			e.preventDefault();
+			e.stopPropagation();
+			if (lenis && typeof lenis.scrollTo === 'function') {
+				lenis.scrollTo(0, { duration: 1.3 });
+			} else {
+				window.scrollTo({ top: 0, behavior: 'smooth' });
+			}
+		}, true);
 	}
 
 	/**
