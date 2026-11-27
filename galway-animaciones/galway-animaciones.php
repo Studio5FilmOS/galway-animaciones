@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Galway Animaciones Inmersivas
  * Description: Motor ligero de animaciones inmersivas (Lenis Smooth Scroll, GSAP ScrollTrigger, acordeón de pilares, menú overlay y entorno submarino) 100% compatible con Elementor Gratuito y Astra.
- * Version: 2.13.0
+ * Version: 2.14.0
  * Author: Studio 5 - Jesse Añazco
  * License: GPL-2.0+
  * Text Domain: galway-animaciones
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'GALWAY_ANIM_VERSION', '2.13.0' );
+define( 'GALWAY_ANIM_VERSION', '2.14.0' );
 define( 'GALWAY_ANIM_URL', plugin_dir_url( __FILE__ ) );
 
 /**
@@ -492,12 +492,12 @@ function galway_anim_render_global_chrome() {
 	$logo_url     = 'https://www.galway.com.ec/wp-content/uploads/2026/11/gw-logo-blanco.png';
 
 	$nav_items = array(
-		array( 'key' => 'home', 'label' => 'HOME', 'url' => $home_url, 'class' => '' ),
-		array( 'key' => 'journeys', 'label' => 'JOURNEYS', 'url' => $journeys_url, 'class' => 'gw-journeys-trigger' ),
-		array( 'key' => 'the-islands', 'label' => 'THE ISLANDS', 'url' => '#', 'class' => '' ),
-		array( 'key' => 'community', 'label' => 'COMMUNITY', 'url' => '#', 'class' => '' ),
-		array( 'key' => 'mainland-ecuador', 'label' => 'MAINLAND ECUADOR', 'url' => '#', 'class' => '' ),
-		array( 'key' => 'about-us', 'label' => 'ABOUT US', 'url' => $about_url, 'class' => '' ),
+		array( 'key' => 'home', 'label_en' => 'HOME', 'label_es' => 'INICIO', 'url' => $home_url, 'class' => '' ),
+		array( 'key' => 'journeys', 'label_en' => 'JOURNEYS', 'label_es' => 'VIAJES', 'url' => $journeys_url, 'class' => 'gw-journeys-trigger' ),
+		array( 'key' => 'the-islands', 'label_en' => 'THE ISLANDS', 'label_es' => 'LAS ISLAS', 'url' => '#', 'class' => '' ),
+		array( 'key' => 'community', 'label_en' => 'COMMUNITY', 'label_es' => 'COMUNIDAD', 'url' => '#', 'class' => '' ),
+		array( 'key' => 'mainland-ecuador', 'label_en' => 'MAINLAND ECUADOR', 'label_es' => 'ECUADOR CONTINENTAL', 'url' => '#', 'class' => '' ),
+		array( 'key' => 'about-us', 'label_en' => 'ABOUT US', 'label_es' => 'NOSOTROS', 'url' => $about_url, 'class' => '' ),
 	);
 	?>
 	<header class="gw-global-header" role="banner">
@@ -525,19 +525,19 @@ function galway_anim_render_global_chrome() {
 		<div class="gw-gm-cards">
 			<a class="gw-gm-card" href="<?php echo esc_url( $journeys_url ); ?>">
 				<img src="https://www.galway.com.ec/wp-content/uploads/2026/11/card-on-board.webp" alt="On-Board Cruises">
-				<span class="gw-gm-card-title">ON-BOARD</span>
+				<span class="gw-gm-card-title notranslate" translate="no" data-label-en="ON-BOARD" data-label-es="A BORDO">ON-BOARD</span>
 			</a>
 			<a class="gw-gm-card" href="<?php echo esc_url( $journeys_url ); ?>">
 				<img src="https://www.galway.com.ec/wp-content/uploads/2026/11/card-island-hopping.webp" alt="Island Hopping">
-				<span class="gw-gm-card-title">ISLAND<br>HOPPING</span>
+				<span class="gw-gm-card-title notranslate" translate="no" data-label-en="ISLAND<br>HOPPING" data-label-es="ISLAND<br>HOPPING">ISLAND<br>HOPPING</span>
 			</a>
 			<a class="gw-gm-card" href="<?php echo esc_url( $journeys_url ); ?>">
 				<img src="https://www.galway.com.ec/wp-content/uploads/2026/11/card-diving.webp" alt="Diving">
-				<span class="gw-gm-card-title">DIVING</span>
+				<span class="gw-gm-card-title notranslate" translate="no" data-label-en="DIVING" data-label-es="BUCEO">DIVING</span>
 			</a>
 			<a class="gw-gm-card" href="<?php echo esc_url( $journeys_url ); ?>">
 				<img src="https://www.galway.com.ec/wp-content/uploads/2026/11/card-education.webp" alt="Education">
-				<span class="gw-gm-card-title">EDUCATION</span>
+				<span class="gw-gm-card-title notranslate" translate="no" data-label-en="EDUCATION" data-label-es="EDUCACIÓN">EDUCATION</span>
 			</a>
 		</div>
 		<nav class="gw-gm-nav" aria-label="Menú principal">
@@ -548,7 +548,7 @@ function galway_anim_render_global_chrome() {
 				</svg>
 			</button>
 			<?php foreach ( $nav_items as $item ) :
-				$classes = array( 'gw-gm-link' );
+				$classes = array( 'gw-gm-link', 'notranslate' );
 				if ( ! empty( $item['class'] ) ) {
 					$classes[] = $item['class'];
 				}
@@ -556,7 +556,7 @@ function galway_anim_render_global_chrome() {
 					$classes[] = 'is-active';
 				}
 				?>
-				<a class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" href="<?php echo esc_url( $item['url'] ); ?>" data-gw-nav="<?php echo esc_attr( $item['key'] ); ?>"><?php echo esc_html( $item['label'] ); ?></a>
+				<a class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" translate="no" href="<?php echo esc_url( $item['url'] ); ?>" data-gw-nav="<?php echo esc_attr( $item['key'] ); ?>" data-label-en="<?php echo esc_attr( $item['label_en'] ); ?>" data-label-es="<?php echo esc_attr( $item['label_es'] ); ?>"><?php echo esc_html( $item['label_en'] ); ?></a>
 			<?php endforeach; ?>
 		</nav>
 	</div>

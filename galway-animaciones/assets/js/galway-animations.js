@@ -157,6 +157,12 @@
 			buttons.forEach(function (btn) {
 				btn.classList.toggle('is-active', btn.getAttribute('data-gw-lang') === lang);
 			});
+			document.querySelectorAll('[data-label-en][data-label-es]').forEach(function (el) {
+				var txt = lang === 'es' ? el.getAttribute('data-label-es') : el.getAttribute('data-label-en');
+				if (txt) {
+					el.innerHTML = txt;
+				}
+			});
 		}
 
 		function waitForCombo(attemptsLeft, cb) {
@@ -691,6 +697,13 @@
 		// Móvil / Tablet: flujo vertical limpio sin pin (con animaciones repetibles al subir y bajar)
 		if (window.innerWidth < 1025) {
 			if (pillarsWrap) {
+				pillars.forEach(function (pillar, idx) {
+					pillar.style.cursor = 'pointer';
+					pillar.addEventListener('click', function () {
+						setActivePillar(currentPillar === idx ? -1 : idx);
+					});
+				});
+
 				ScrollTrigger.create({
 					trigger: pillarsWrap,
 					start: 'top 75%',
@@ -870,9 +883,21 @@
 			return state;
 		}
 
-		// Caso B: Escenario Maestro Home (5 cortinas: Hero, Pilares, Iguana, Reviews, Footer)
-		state.desktopOffsets = [0, 0.20, 0.66, 0.86, 1.0];
+		// Caso B: Escenario Maestro Home (5 cortinas: Hero, Pilares por hover, Iguana, Reviews, Footer)
+		state.desktopOffsets = [0, 0.28, 0.58, 0.83, 1.0];
 		var lastHomeIdx = 0;
+
+		if (pillarsWrap && pillars.length) {
+			pillars.forEach(function (pillar, idx) {
+				pillar.style.cursor = 'pointer';
+				pillar.addEventListener('mouseenter', function () {
+					setActivePillar(idx);
+				});
+			});
+			pillarsWrap.addEventListener('mouseleave', function () {
+				setActivePillar(-1);
+			});
+		}
 
 		var heroScene = allScenes[0];
 		var heroVideo = heroScene ? heroScene.querySelector('video, .elementor-background-video-container') : null;
@@ -898,7 +923,7 @@
 			scrollTrigger: {
 				trigger: stage,
 				start: 'top top',
-				end: '+=800%',
+				end: '+=520%',
 				pin: true,
 				pinSpacing: true,
 				scrub: 0.95,
@@ -906,26 +931,16 @@
 				onUpdate: function (self) {
 					var p = self.progress;
 
-					// Pilares secuenciales 1 -> 2 -> 3 con ~100vh por video
-					if (pillars.length) {
-						if (p < 0.12) {
-							setActivePillar(-1);
-						} else if (p < 0.27) {
-							setActivePillar(0);
-						} else if (p < 0.40) {
-							setActivePillar(1);
-						} else if (p < 0.54) {
-							setActivePillar(2);
-						} else {
-							setActivePillar(-1);
-						}
+					// Solo pausar los videos de Pilares si salimos de su cortina (en la cortina los controla el hover)
+					if (pillars.length && (p < 0.08 || p > 0.54)) {
+						setActivePillar(-1);
 					}
 
 					// Pausar video del Hero fuera de vista
 					if (heroVideoEl) {
 						heroVideoEl.muted = true;
 						heroVideoEl.playsInline = true;
-						if (p < 0.16) {
+						if (p < 0.24) {
 							if (heroVideoEl.paused) {
 								var hp = heroVideoEl.play();
 								if (hp && typeof hp.catch === 'function') hp.catch(function () {});
@@ -937,7 +952,7 @@
 
 					// Reproducir video de Iguana solo al llegar con el scroll y pausar al salir
 					if (iguanaVideoEl) {
-						if (p >= 0.50 && p < 0.84) {
+						if (p >= 0.34 && p < 0.80) {
 							if (iguanaVideoEl.paused) {
 								var ip = iguanaVideoEl.play();
 								if (ip && typeof ip.catch === 'function') ip.catch(function () {});
@@ -948,10 +963,10 @@
 					}
 
 					var homeActiveIdx = 0;
-					if (p < 0.10) homeActiveIdx = 0;
-					else if (p < 0.56) homeActiveIdx = 1;
-					else if (p < 0.77) homeActiveIdx = 2;
-					else if (p < 0.93) homeActiveIdx = 3;
+					if (p < 0.14) homeActiveIdx = 0;
+					else if (p < 0.44) homeActiveIdx = 1;
+					else if (p < 0.71) homeActiveIdx = 2;
+					else if (p < 0.92) homeActiveIdx = 3;
 					else homeActiveIdx = 4;
 
 					if (homeActiveIdx !== lastHomeIdx) {
@@ -971,42 +986,42 @@
 
 		state.masterTrigger = tl.scrollTrigger;
 
-		// 0.00 -> 0.04: Pausa inicial en Hero (protege boton PLAN YOUR TRIP y WhatsApp al cargar)
-		tl.to({}, { duration: 0.04 }, 0);
+		// 0.00 -> 0.06: Pausa inicial en Hero (protege boton PLAN YOUR TRIP y WhatsApp al cargar)
+		tl.to({}, { duration: 0.06 }, 0);
 
-		// 0.04 -> 0.14: Escena 2 (Pilares) se monta encima del Hero
+		// 0.06 -> 0.22: Escena 2 (Pilares) se monta encima del Hero
 		if (allScenes[1]) {
-			tl.to(allScenes[1], { yPercent: 0, ease: 'none', duration: 0.10 }, 0.04);
+			tl.to(allScenes[1], { yPercent: 0, ease: 'none', duration: 0.16 }, 0.06);
 		}
 		if (heroVideo) {
-			tl.to(heroVideo, { scale: 1.06, ease: 'none', duration: 0.10 }, 0.04);
+			tl.to(heroVideo, { scale: 1.06, ease: 'none', duration: 0.16 }, 0.06);
 		}
 
-		// 0.14 -> 0.52: Pausa amplia en Pilares (~100vh por cada uno de los 3 videos)
-		tl.to({}, { duration: 0.38 }, 0.14);
+		// 0.22 -> 0.36: Pausa cómoda en Pilares para interactuar con el mouse sobre las 3 columnas
+		tl.to({}, { duration: 0.14 }, 0.22);
 
-		// 0.52 -> 0.62: Escena 3 (Iguana Manifesto) se monta encima de Pilares con parallax suave
+		// 0.36 -> 0.52: Escena 3 (Iguana Manifesto) se monta encima de Pilares con parallax suave
 		if (allScenes[2]) {
-			tl.to(allScenes[2], { yPercent: 0, ease: 'none', duration: 0.10 }, 0.52);
+			tl.to(allScenes[2], { yPercent: 0, ease: 'none', duration: 0.16 }, 0.36);
 		}
 		if (iguanaBg) {
-			tl.to(iguanaBg, { yPercent: 0, scale: 1, ease: 'none', duration: 0.10 }, 0.52);
+			tl.to(iguanaBg, { yPercent: 0, scale: 1, ease: 'none', duration: 0.16 }, 0.36);
 		}
 
-		// 0.62 -> 0.72: Pausa en Iguana Manifesto
-		tl.to({}, { duration: 0.10 }, 0.62);
+		// 0.52 -> 0.64: Pausa en Iguana Manifesto
+		tl.to({}, { duration: 0.12 }, 0.52);
 
-		// 0.72 -> 0.82: Escena 4 (Traveler Experiences) se monta encima de Iguana
+		// 0.64 -> 0.78: Escena 4 (Traveler Experiences) se monta encima de Iguana
 		if (allScenes[3]) {
-			tl.to(allScenes[3], { yPercent: 0, ease: 'none', duration: 0.10 }, 0.72);
+			tl.to(allScenes[3], { yPercent: 0, ease: 'none', duration: 0.14 }, 0.64);
 		}
 
-		// 0.82 -> 0.90: Pausa limpia para leer Traveler Experiences
-		tl.to({}, { duration: 0.08 }, 0.82);
+		// 0.78 -> 0.88: Pausa limpia para leer Traveler Experiences
+		tl.to({}, { duration: 0.10 }, 0.78);
 
-		// 0.90 -> 1.00: Escena 5 (Footer) se monta encima de Traveler Experiences
+		// 0.88 -> 1.00: Escena 5 (Footer) se monta encima de Traveler Experiences
 		if (footerEl) {
-			tl.to(footerEl, { yPercent: 0, ease: 'none', duration: 0.10 }, 0.90);
+			tl.to(footerEl, { yPercent: 0, ease: 'none', duration: 0.12 }, 0.88);
 		}
 
 		return state;
