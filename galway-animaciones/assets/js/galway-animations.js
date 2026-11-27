@@ -47,7 +47,10 @@
 			gsap.registerPlugin(ScrollTrigger);
 		}
 
-		var stageInfo = { scenes: [], masterTrigger: null, setDotCallback: null, setOceanAudioCallback: null, scrollToScene: null };
+		var stageInfo = { scenes: [], desktopOffsets: null, masterTrigger: null, setDotCallback: null, setOceanAudioCallback: null, scrollToScene: null };
+
+		// 1b. Header fijo global con glassmorphism al hacer scroll
+		initFixedHeader(lenis);
 
 		// 2. Menú Sánduche Overlay + Panel de 4 tarjetas (JOURNEYS)
 		initMenuOverlay(lenis);
@@ -73,6 +76,46 @@
 	});
 
 	/**
+	 * Fija el header oficial de Galway en todas las páginas y activa glassmorphism al hacer scroll.
+	 */
+	function initFixedHeader(lenis) {
+		var header = document.querySelector('.gw-header-glass, .g-112c2c1, [data-id="22da55f4"], [data-id="69ca67f5"], [data-id="7eb563f8"]');
+		if (!header || header.classList.contains('gw-header-fixed')) {
+			return;
+		}
+
+		var headerHeight = header.offsetHeight || 0;
+		var parent = header.parentNode;
+		if (parent && headerHeight > 0) {
+			var spacer = document.createElement('div');
+			spacer.className = 'gw-header-spacer';
+			spacer.setAttribute('aria-hidden', 'true');
+			spacer.style.height = headerHeight + 'px';
+			parent.insertBefore(spacer, header);
+		}
+
+		var rootContainer = header.closest('.elementor') || document.body;
+		rootContainer.insertBefore(header, rootContainer.firstChild);
+		header.classList.add('gw-header-fixed');
+
+		function syncHeaderState(scrollEvt) {
+			var y = (scrollEvt && typeof scrollEvt.scroll === 'number')
+				? scrollEvt.scroll
+				: (window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0);
+			header.classList.toggle('is-scrolled', y > 24);
+		}
+
+		syncHeaderState();
+		window.addEventListener('scroll', function () {
+			syncHeaderState();
+		}, { passive: true });
+
+		if (lenis && typeof lenis.on === 'function') {
+			lenis.on('scroll', syncHeaderState);
+		}
+	}
+
+	/**
 	 * Controla la apertura/cierre del menú overlay y la aparición del panel Journeys.
 	 */
 	function initMenuOverlay(lenis) {
@@ -89,6 +132,7 @@
 			if (e) e.preventDefault();
 			overlay.classList.add('is-open');
 			overlay.classList.add('journeys-active');
+			document.body.classList.add('gw-menu-open');
 			if (lenis) lenis.stop();
 		}
 
@@ -96,6 +140,7 @@
 			if (e) e.preventDefault();
 			overlay.classList.remove('is-open');
 			overlay.classList.remove('journeys-active');
+			document.body.classList.remove('gw-menu-open');
 			if (lenis) lenis.start();
 		}
 
@@ -145,11 +190,48 @@
 		var allScenes = gsap.utils.toArray('.gw-scene, .g-ede2985').filter(function (el) {
 			return !el.classList.contains('gw-menu-overlay') && !el.classList.contains('g-e1203d2');
 		});
+		var footerEl = document.querySelector('[data-id="28221e0a"], .elementor-element-28221e0a, .gw-footer-scene, .g-1a0a9f6');
+
+		function animateJourneyBandsInScene(scene) {
+			if (!scene || scene.dataset.gwJourneyAnimated === '1') return;
+			var bands = scene.querySelectorAll('.gw-journey-band, .g-94d1e9f');
+			if (!bands.length) return;
+			scene.dataset.gwJourneyAnimated = '1';
+
+			var contents = scene.querySelectorAll('.gw-journey-content, .g-04a6590');
+			if (contents.length) {
+				gsap.fromTo(
+					contents,
+					{ y: 22, opacity: 0 },
+					{
+						y: 0,
+						opacity: 1,
+						duration: 0.65,
+						stagger: 0.14,
+						ease: 'power3.out'
+					}
+				);
+			}
+
+			var photos = scene.querySelectorAll('.gw-journey-photo, .g-f3be2a4');
+			if (photos.length) {
+				gsap.fromTo(
+					photos,
+					{ scale: 1.07 },
+					{
+						scale: 1,
+						duration: 1.15,
+						stagger: 0.1,
+						ease: 'power2.out'
+					}
+				);
+			}
+		}
 
 		state = state || {};
 		state.scenes = allScenes;
 
-		// Páginas dedicadas de 1 sola escena (Plan Your Trip o About Us)
+		// Caso A: Páginas dedicadas de 1 sola escena (Plan Your Trip o About Us) + Footer cortina
 		if (allScenes.length < 2) {
 			var singleOcean = document.querySelector('.gw-ocean-scene, .g-45e7068');
 			var singleSeaLion = singleOcean ? singleOcean.querySelector('.gw-sealion-swim, .g-6b29333') : null;
@@ -186,6 +268,47 @@
 					{ scale: 1.07, yPercent: -2 },
 					{ scale: 1, yPercent: 0, duration: 2.2, ease: 'power2.out' }
 				);
+			}
+
+			if (allScenes[0]) {
+				animateJourneyBandsInScene(allScenes[0]);
+			}
+
+			if (footerEl && allScenes[0] && window.innerWidth >= 1025) {
+				var singleStage = document.createElement('div');
+				singleStage.className = 'gw-stage';
+				allScenes[0].parentNode.insertBefore(singleStage, allScenes[0]);
+				singleStage.appendChild(allScenes[0]);
+				gsap.set(allScenes[0], { zIndex: 1, yPercent: 0 });
+
+				footerEl.classList.add('gw-footer-curtain');
+				singleStage.appendChild(footerEl);
+				gsap.set(footerEl, { zIndex: 2, yPercent: 102 });
+
+				state.scenes = [allScenes[0], footerEl];
+				state.desktopOffsets = [0, 1];
+
+				var singleTl = gsap.timeline({
+					scrollTrigger: {
+						trigger: singleStage,
+						start: 'top top',
+						end: '+=140%',
+						pin: true,
+						pinSpacing: true,
+						scrub: 0.9,
+						anticipatePin: 1,
+						onUpdate: function (self) {
+							if (state.setDotCallback) {
+								state.setDotCallback(self.progress < 0.5 ? 0 : 1);
+							}
+						}
+					}
+				});
+
+				state.masterTrigger = singleTl.scrollTrigger;
+				singleTl.to({}, { duration: 0.12 }, 0);
+				singleTl.to(footerEl, { yPercent: 0, ease: 'none', duration: 0.80 }, 0.12);
+				singleTl.to({}, { duration: 0.08 }, 0.92);
 			}
 
 			return state;
@@ -388,14 +511,28 @@
 				});
 			}
 
+			allScenes.forEach(function (scene) {
+				if (scene.querySelector('.gw-journey-band, .g-94d1e9f')) {
+					ScrollTrigger.create({
+						trigger: scene,
+						start: 'top 78%',
+						once: true,
+						onEnter: function () {
+							animateJourneyBandsInScene(scene);
+						}
+					});
+				}
+			});
+
 			return state;
 		}
 
-		// Escritorio: envolver las 4 escenas + Footer en .gw-stage (5 cortinas apiladas)
+		// Escritorio: envolver escenas + Footer en .gw-stage (cortinas apiladas)
 		var stage = document.createElement('div');
 		stage.className = 'gw-stage';
 		allScenes[0].parentNode.insertBefore(stage, allScenes[0]);
 
+		var curtains = allScenes.slice();
 		allScenes.forEach(function (scene, idx) {
 			stage.appendChild(scene);
 			gsap.set(scene, {
@@ -404,7 +541,6 @@
 			});
 		});
 
-		var footerEl = document.querySelector('[data-id="28221e0a"], .elementor-element-28221e0a');
 		if (footerEl) {
 			footerEl.classList.add('gw-footer-curtain');
 			stage.appendChild(footerEl);
@@ -412,8 +548,79 @@
 				zIndex: allScenes.length + 1,
 				yPercent: 102
 			});
-			state.scenes = allScenes.concat([footerEl]);
+			curtains.push(footerEl);
 		}
+		state.scenes = curtains;
+
+		// Caso C: Página multi-escena genérica (ej. Journeys con tarjetas 2 en 2 + Footer)
+		if (!pillarsWrap) {
+			var totalCurtains = curtains.length;
+			var segments = [];
+			var cursor = 0.25;
+
+			for (var cIdx = 1; cIdx < totalCurtains; cIdx++) {
+				var sStart = cursor;
+				var sDur = 0.55;
+				var hDur = (cIdx === totalCurtains - 1) ? 0.10 : 0.45;
+				segments.push({
+					index: cIdx,
+					el: curtains[cIdx],
+					start: sStart,
+					end: sStart + sDur
+				});
+				cursor += sDur + hDur;
+			}
+
+			var totalUnits = cursor;
+			var genOffsets = [0];
+			var enterThresholds = [0];
+			segments.forEach(function (seg) {
+				genOffsets.push(seg.index === totalCurtains - 1 ? 1 : seg.end / totalUnits);
+				enterThresholds.push(seg.start / totalUnits + 0.01);
+			});
+			state.desktopOffsets = genOffsets;
+
+			animateJourneyBandsInScene(curtains[0]);
+
+			var genTl = gsap.timeline({
+				scrollTrigger: {
+					trigger: stage,
+					start: 'top top',
+					end: '+=' + Math.round((totalCurtains - 1) * 145) + '%',
+					pin: true,
+					pinSpacing: true,
+					scrub: 0.95,
+					anticipatePin: 1,
+					onUpdate: function (self) {
+						var p = self.progress;
+						var activeIdx = 0;
+
+						for (var k = 1; k < enterThresholds.length; k++) {
+							if (p >= enterThresholds[k]) {
+								activeIdx = k;
+								animateJourneyBandsInScene(curtains[k]);
+							}
+						}
+
+						if (state.setDotCallback) {
+							state.setDotCallback(activeIdx);
+						}
+					}
+				}
+			});
+
+			state.masterTrigger = genTl.scrollTrigger;
+			genTl.to({}, { duration: 0.25 }, 0);
+			segments.forEach(function (seg) {
+				genTl.to(seg.el, { yPercent: 0, ease: 'none', duration: seg.end - seg.start }, seg.start);
+			});
+			genTl.to({}, { duration: Math.max(0.05, totalUnits - (segments.length ? segments[segments.length - 1].end : 0.25)) }, segments.length ? segments[segments.length - 1].end : 0.25);
+
+			return state;
+		}
+
+		// Caso B: Escenario Maestro Home (5 cortinas: Hero, Pilares, Iguana, Reviews, Footer)
+		state.desktopOffsets = [0, 0.20, 0.66, 0.86, 1.0];
 
 		var heroScene = allScenes[0];
 		var heroVideo = heroScene ? heroScene.querySelector('video, .elementor-background-video-container') : null;
@@ -706,7 +913,7 @@
 		nav.setAttribute('aria-label', 'Navegación de escenas');
 
 		var dots = [];
-		var desktopOffsets = [0, 0.20, 0.66, 0.86, 1.0];
+		var desktopOffsets = (stageInfo && stageInfo.desktopOffsets) ? stageInfo.desktopOffsets : [0, 0.20, 0.66, 0.86, 1.0];
 
 		function scrollToSceneIndex(index) {
 			if (stageInfo.masterTrigger) {

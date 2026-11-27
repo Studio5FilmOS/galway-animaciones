@@ -146,17 +146,64 @@ html.lenis body {
 	}
 }
 
-/* 3. Header en portada (mantiene el flujo natural dentro de hero-content) */
+/* 3. Header fijo global en todas las páginas con efecto glassmorphism al hacer scroll */
 .gw-header-glass,
 .g-112c2c1 {
-	transition: background-color 0.4s ease, backdrop-filter 0.4s ease, padding 0.4s ease;
+	transition: background-color 0.4s cubic-bezier(0.22, 1, 0.36, 1), backdrop-filter 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, padding 0.35s ease, opacity 0.3s ease;
 }
 
-.gw-header-glass.is-scrolled,
-.g-112c2c1.is-scrolled {
-	background-color: rgba(6, 28, 48, 0.55) !important;
-	backdrop-filter: blur(12px);
-	-webkit-backdrop-filter: blur(12px);
+body.galway-anim-enabled:not(.elementor-editor-active) .gw-header-fixed {
+	position: fixed !important;
+	top: 0 !important;
+	left: 0 !important;
+	right: 0 !important;
+	width: 100% !important;
+	z-index: 9500 !important;
+	box-sizing: border-box !important;
+	border-bottom: 1px solid transparent;
+	transition: background-color 0.4s cubic-bezier(0.22, 1, 0.36, 1), backdrop-filter 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, padding 0.35s ease, opacity 0.3s ease;
+}
+
+body.admin-bar.galway-anim-enabled:not(.elementor-editor-active) .gw-header-fixed {
+	top: 32px !important;
+}
+
+@media (max-width: 782px) {
+	body.admin-bar.galway-anim-enabled:not(.elementor-editor-active) .gw-header-fixed {
+		top: 46px !important;
+	}
+}
+
+body.galway-anim-enabled:not(.elementor-editor-active) .gw-header-fixed.is-scrolled {
+	background-color: rgba(5, 31, 54, 0.62) !important;
+	backdrop-filter: blur(18px) saturate(145%) !important;
+	-webkit-backdrop-filter: blur(18px) saturate(145%) !important;
+	border-bottom-color: rgba(255, 255, 255, 0.16) !important;
+	box-shadow: 0 10px 30px rgba(2, 18, 34, 0.22) !important;
+	padding-top: 14px !important;
+	padding-bottom: 14px !important;
+}
+
+body.galway-anim-enabled:not(.elementor-editor-active) .gw-header-fixed [data-id="73ef0ac1"] {
+	transition: max-height 0.35s ease, opacity 0.25s ease, margin 0.35s ease;
+	overflow: hidden;
+}
+
+body.galway-anim-enabled:not(.elementor-editor-active) .gw-header-fixed.is-scrolled [data-id="73ef0ac1"] {
+	max-height: 0 !important;
+	opacity: 0 !important;
+	margin: 0 !important;
+}
+
+body.gw-menu-open .gw-header-fixed {
+	opacity: 0 !important;
+	pointer-events: none !important;
+}
+
+.gw-header-spacer {
+	width: 100%;
+	flex-shrink: 0;
+	pointer-events: none;
 }
 
 /* 4. Menú Sánduche Overlay + Panel Journeys (Solo oculto en frontend) */
@@ -494,7 +541,9 @@ body.galway-anim-enabled:not(.elementor-editor-active) .g-e1203d2.journeys-activ
 }
 
 @media (min-width: 768px) {
-	.elementor-element-51183987 {
+	.elementor-element-51183987,
+	.gw-footer-divider,
+	.g-54f6496 {
 		border-left: 1px solid rgba(11, 62, 94, 0.25);
 	}
 }
@@ -546,6 +595,120 @@ body.galway-anim-enabled:not(.elementor-editor-active) .g-e1203d2.journeys-activ
 	50% {
 		box-shadow: 0 0 0 10px rgba(13, 107, 130, 0);
 		transform: scale(1.06);
+	}
+}
+
+/* 8a. Tarjetas panorámicas de Journeys (fotos limpias + degradado lateral dinámico + hover) */
+.gw-journey-band,
+.g-94d1e9f {
+	position: relative;
+	width: 100%;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	border-bottom: 2px solid #F2EFE7;
+}
+
+.gw-journey-band:last-child,
+.g-94d1e9f:last-child {
+	border-bottom: none;
+}
+
+@media (min-width: 1025px) {
+	.gw-stage > .gw-scene .gw-journey-band,
+	.gw-stage > .gw-scene .g-94d1e9f {
+		flex: 1 1 50% !important;
+		min-height: 50%;
+	}
+}
+
+@media (max-width: 1024px) {
+	.gw-journey-band,
+	.g-94d1e9f {
+		min-height: 360px;
+	}
+}
+
+.gw-journey-photo,
+.g-f3be2a4 {
+	position: absolute !important;
+	inset: 0 !important;
+	width: 100% !important;
+	height: 100% !important;
+	z-index: 0 !important;
+	pointer-events: none;
+	transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1), filter 0.6s ease;
+	will-change: transform;
+}
+
+.gw-journey-photo img,
+.g-f3be2a4 img {
+	width: 100% !important;
+	height: 100% !important;
+	object-fit: cover !important;
+	display: block;
+}
+
+.gw-journey-content,
+.g-04a6590 {
+	position: relative;
+	z-index: 2;
+}
+
+.gw-journey-band::after,
+.g-94d1e9f::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	pointer-events: none;
+	transition: opacity 0.55s ease;
+	background: linear-gradient(90deg, rgba(4, 42, 66, 0.92) 0%, rgba(4, 42, 66, 0.62) 26%, rgba(4, 42, 66, 0.12) 48%, rgba(4, 42, 66, 0.12) 56%, rgba(4, 42, 66, 0.68) 78%, rgba(4, 42, 66, 0.94) 100%);
+}
+
+.gw-journey-band.gw-tone-teal::after,
+.g-94d1e9f.gw-tone-teal::after {
+	background: linear-gradient(90deg, rgba(6, 56, 68, 0.92) 0%, rgba(6, 56, 68, 0.62) 26%, rgba(6, 56, 68, 0.12) 48%, rgba(6, 56, 68, 0.12) 56%, rgba(6, 56, 68, 0.68) 78%, rgba(6, 56, 68, 0.94) 100%);
+}
+
+.gw-journey-band.gw-tone-emerald::after,
+.g-94d1e9f.gw-tone-emerald::after {
+	background: linear-gradient(90deg, rgba(6, 58, 48, 0.92) 0%, rgba(6, 58, 48, 0.62) 26%, rgba(6, 58, 48, 0.12) 48%, rgba(6, 58, 48, 0.12) 56%, rgba(6, 58, 48, 0.68) 78%, rgba(6, 58, 48, 0.94) 100%);
+}
+
+@media (max-width: 768px) {
+	.gw-journey-band::after,
+	.g-94d1e9f::after {
+		background: linear-gradient(180deg, rgba(4, 42, 66, 0.80) 0%, rgba(4, 42, 66, 0.42) 50%, rgba(4, 42, 66, 0.88) 100%);
+	}
+}
+
+.gw-journey-band:hover .gw-journey-photo,
+.gw-journey-band:hover .g-f3be2a4,
+.g-94d1e9f:hover .gw-journey-photo,
+.g-94d1e9f:hover .g-f3be2a4 {
+	transform: scale(1.045);
+	filter: brightness(1.06);
+}
+
+.gw-journey-band:hover::after,
+.g-94d1e9f:hover::after {
+	opacity: 0.82;
+}
+
+.gw-chevron-scroll {
+	animation: gwChevronBounce 2.2s ease-in-out infinite;
+}
+
+@keyframes gwChevronBounce {
+	0%,
+	100% {
+		transform: translateY(0);
+		opacity: 0.78;
+	}
+	50% {
+		transform: translateY(7px);
+		opacity: 1;
 	}
 }
 
