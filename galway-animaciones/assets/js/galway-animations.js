@@ -52,6 +52,9 @@
 		// 1b. Header fijo global con glassmorphism al hacer scroll
 		initFixedHeader(lenis);
 
+		// 1c. Barra inferior del Footer fija siempre con aspecto glassmorphism
+		initFixedFooterBar();
+
 		// 2. Menú Sánduche Overlay + Panel de 4 tarjetas (JOURNEYS)
 		initMenuOverlay(lenis);
 
@@ -113,6 +116,26 @@
 		if (lenis && typeof lenis.on === 'function') {
 			lenis.on('scroll', syncHeaderState);
 		}
+	}
+
+	/**
+	 * Fija siempre abajo la barra del Footer con efecto glassmorphism tinteado.
+	 */
+	function initFixedFooterBar() {
+		var footerEl = document.querySelector('[data-id="28221e0a"], .elementor-element-28221e0a, .gw-footer-scene, .g-1a0a9f6');
+		if (!footerEl) {
+			return;
+		}
+
+		var footerBar = footerEl.lastElementChild;
+		if (!footerBar || footerBar.classList.contains('gw-footer-bar-fixed')) {
+			return;
+		}
+
+		var rootContainer = footerEl.closest('.elementor') || document.body;
+		rootContainer.appendChild(footerBar);
+		footerBar.classList.add('gw-footer-bar-fixed');
+		document.body.classList.add('has-gw-fixed-footer');
 	}
 
 	/**

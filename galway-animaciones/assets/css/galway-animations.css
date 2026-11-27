@@ -146,7 +146,7 @@ html.lenis body {
 	}
 }
 
-/* 3. Header fijo global en todas las páginas con efecto glassmorphism al hacer scroll */
+/* 3. Header fijo global + Barra Footer fija siempre abajo con efecto glassmorphism */
 .gw-header-glass,
 .g-112c2c1 {
 	transition: background-color 0.4s cubic-bezier(0.22, 1, 0.36, 1), backdrop-filter 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, padding 0.35s ease, opacity 0.3s ease;
@@ -160,8 +160,14 @@ body.galway-anim-enabled:not(.elementor-editor-active) .gw-header-fixed {
 	width: 100% !important;
 	z-index: 9500 !important;
 	box-sizing: border-box !important;
+	padding: 16px 56px !important;
+	align-items: center !important;
 	border-bottom: 1px solid transparent;
 	transition: background-color 0.4s cubic-bezier(0.22, 1, 0.36, 1), backdrop-filter 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, padding 0.35s ease, opacity 0.3s ease;
+}
+
+body.galway-anim-enabled:not(.elementor-editor-active) .gw-header-fixed img {
+	transition: height 0.35s ease, width 0.35s ease;
 }
 
 body.admin-bar.galway-anim-enabled:not(.elementor-editor-active) .gw-header-fixed {
@@ -175,27 +181,39 @@ body.admin-bar.galway-anim-enabled:not(.elementor-editor-active) .gw-header-fixe
 }
 
 body.galway-anim-enabled:not(.elementor-editor-active) .gw-header-fixed.is-scrolled {
-	background-color: rgba(5, 31, 54, 0.62) !important;
+	background-color: rgba(6, 60, 99, 0.56) !important;
 	backdrop-filter: blur(18px) saturate(145%) !important;
 	-webkit-backdrop-filter: blur(18px) saturate(145%) !important;
 	border-bottom-color: rgba(255, 255, 255, 0.16) !important;
-	box-shadow: 0 10px 30px rgba(2, 18, 34, 0.22) !important;
-	padding-top: 14px !important;
-	padding-bottom: 14px !important;
+	box-shadow: 0 8px 28px rgba(2, 18, 34, 0.22) !important;
+	padding: 8px 56px !important;
+}
+
+body.galway-anim-enabled:not(.elementor-editor-active) .gw-header-fixed.is-scrolled img {
+	height: 30px !important;
+	width: auto !important;
+	max-height: 30px !important;
+}
+
+@media (max-width: 767px) {
+	body.galway-anim-enabled:not(.elementor-editor-active) .gw-header-fixed {
+		padding: 12px 20px !important;
+	}
+	body.galway-anim-enabled:not(.elementor-editor-active) .gw-header-fixed.is-scrolled {
+		padding: 8px 20px !important;
+	}
 }
 
 body.galway-anim-enabled:not(.elementor-editor-active) .gw-header-fixed [data-id="73ef0ac1"] {
-	transition: max-height 0.35s ease, opacity 0.25s ease, margin 0.35s ease;
-	overflow: hidden;
+	transition: opacity 0.25s ease;
 }
 
 body.galway-anim-enabled:not(.elementor-editor-active) .gw-header-fixed.is-scrolled [data-id="73ef0ac1"] {
-	max-height: 0 !important;
-	opacity: 0 !important;
-	margin: 0 !important;
+	display: none !important;
 }
 
-body.gw-menu-open .gw-header-fixed {
+body.gw-menu-open .gw-header-fixed,
+body.gw-menu-open .gw-footer-bar-fixed {
 	opacity: 0 !important;
 	pointer-events: none !important;
 }
@@ -204,6 +222,68 @@ body.gw-menu-open .gw-header-fixed {
 	width: 100%;
 	flex-shrink: 0;
 	pointer-events: none;
+}
+
+/* Barra inferior del Footer fija siempre con efecto glassmorphism tinteado */
+body.galway-anim-enabled:not(.elementor-editor-active) .gw-footer-bar-fixed {
+	position: fixed !important;
+	bottom: 0 !important;
+	left: 0 !important;
+	right: 0 !important;
+	width: 100% !important;
+	z-index: 9400 !important;
+	box-sizing: border-box !important;
+	padding: 9px 56px !important;
+	background-color: rgba(6, 60, 99, 0.56) !important;
+	backdrop-filter: blur(18px) saturate(145%) !important;
+	-webkit-backdrop-filter: blur(18px) saturate(145%) !important;
+	border-top: 1px solid rgba(255, 255, 255, 0.16) !important;
+	box-shadow: 0 -8px 28px rgba(2, 18, 34, 0.2) !important;
+	transition: opacity 0.3s ease;
+}
+
+body.galway-anim-enabled:not(.elementor-editor-active) .gw-footer-bar-fixed img {
+	height: 22px !important;
+	width: auto !important;
+	max-height: 22px !important;
+}
+
+@media (max-width: 767px) {
+	body.galway-anim-enabled:not(.elementor-editor-active) .gw-footer-bar-fixed {
+		padding: 8px 20px !important;
+		flex-direction: row !important;
+		gap: 10px !important;
+	}
+	body.galway-anim-enabled:not(.elementor-editor-active) .gw-footer-bar-fixed p {
+		font-size: 10px !important;
+		letter-spacing: 0.1em !important;
+	}
+}
+
+/* Respiro inferior cuando existe barra de footer fija para evitar solapes */
+body.has-gw-fixed-footer .gw-hero-scene .e-background-video-content,
+body.has-gw-fixed-footer .g-8364edf > div {
+	padding-bottom: 66px !important;
+}
+
+body.has-gw-fixed-footer [data-id="29d2969a"],
+body.has-gw-fixed-footer .elementor-element-29d2969a {
+	padding-bottom: 72px !important;
+}
+
+body.has-gw-fixed-footer [data-id="37923d7e"],
+body.has-gw-fixed-footer .elementor-element-37923d7e {
+	padding-bottom: 62px !important;
+}
+
+body.has-gw-fixed-footer .gw-stage > .gw-footer-curtain {
+	padding-bottom: 52px !important;
+}
+
+body.has-gw-fixed-footer #ast-scroll-top {
+	bottom: 58px !important;
+	right: 24px !important;
+	z-index: 9300 !important;
 }
 
 /* 4. Menú Sánduche Overlay + Panel Journeys (Solo oculto en frontend) */
@@ -970,11 +1050,19 @@ body.galway-anim-enabled:not(.elementor-editor-active) .g-e1203d2.journeys-activ
 	100% { height: 11px; }
 }
 
+body.has-gw-fixed-footer .gw-sound-btn {
+	bottom: 58px;
+}
+
 @media (max-width: 767px) {
 	.gw-sound-btn {
 		left: 16px;
 		bottom: 16px;
 		padding: 0.45rem 0.85rem;
+	}
+
+	body.has-gw-fixed-footer .gw-sound-btn {
+		bottom: 54px;
 	}
 }
 
