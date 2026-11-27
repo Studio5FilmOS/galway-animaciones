@@ -192,22 +192,7 @@
 		}
 
 		function getCurrentLang() {
-			var saved = readSavedLang();
-			if (saved) {
-				return saved;
-			}
-			var m = document.cookie.match(/(?:^|;\s*)googtrans=([^;]+)/);
-			if (m && m[1]) {
-				var val = decodeURIComponent(m[1]);
-				if (/\/es$/i.test(val)) {
-					return 'es';
-				}
-			}
-			var htmlEl = document.documentElement;
-			if (htmlEl && (htmlEl.classList.contains('translated-ltr') || /^es\b/i.test(htmlEl.lang || ''))) {
-				return 'es';
-			}
-			return 'en';
+			return readSavedLang() === 'es' ? 'es' : 'en';
 		}
 
 		function setGoogTransCookie(lang) {
