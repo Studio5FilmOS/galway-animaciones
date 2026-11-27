@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Galway Animaciones Inmersivas
  * Description: Motor ligero de animaciones inmersivas (Lenis Smooth Scroll, GSAP ScrollTrigger, acordeón de pilares, menú overlay y entorno submarino) 100% compatible con Elementor Gratuito y Astra.
- * Version: 2.12.0
+ * Version: 2.13.0
  * Author: Studio 5 - Jesse Añazco
  * License: GPL-2.0+
  * Text Domain: galway-animaciones
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'GALWAY_ANIM_VERSION', '2.12.0' );
+define( 'GALWAY_ANIM_VERSION', '2.13.0' );
 define( 'GALWAY_ANIM_URL', plugin_dir_url( __FILE__ ) );
 
 /**
@@ -503,10 +503,14 @@ function galway_anim_render_global_chrome() {
 	<header class="gw-global-header" role="banner">
 		<a class="gw-gh-brand" href="<?php echo esc_url( $home_url ); ?>">
 			<img src="<?php echo esc_url( $logo_url ); ?>" alt="Galapagos Your Own Way" class="gw-gh-logo">
-			<span class="gw-gh-since">SINCE 2006</span>
+			<span class="gw-gh-since notranslate" translate="no">SINCE 2006</span>
 		</a>
 		<div class="gw-gh-right">
-			<span class="gw-gh-lang">EN | ES</span>
+			<div class="gw-gh-lang notranslate" translate="no" role="group" aria-label="Idioma">
+				<button type="button" class="gw-lang-btn is-active" data-gw-lang="en">EN</button>
+				<span class="gw-lang-sep">|</span>
+				<button type="button" class="gw-lang-btn" data-gw-lang="es">ES</button>
+			</div>
 			<button type="button" class="gw-gh-menu-btn gw-menu-toggle" aria-label="Abrir menú">
 				<svg width="24" height="18" viewBox="0 0 24 18" fill="none" aria-hidden="true">
 					<line x1="0" y1="2" x2="24" y2="2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
@@ -562,8 +566,9 @@ function galway_anim_render_global_chrome() {
 			<img src="<?php echo esc_url( $logo_url ); ?>" alt="GW" class="gw-gfb-logo">
 			<span class="gw-gfb-slogan">GALÁPAGOS, YOUR OWN WAY.</span>
 		</a>
-		<span class="gw-gfb-since">SINCE 2006</span>
+		<span class="gw-gfb-since notranslate" translate="no">SINCE 2006</span>
 	</div>
+	<div id="gw_google_translate_el" class="gw-gt-hidden" aria-hidden="true"></div>
 	<?php
 }
 add_action( 'wp_footer', 'galway_anim_render_global_chrome', 5 );

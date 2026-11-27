@@ -52,6 +52,9 @@
 		// 1b. Header fijo global con glassmorphism al hacer scroll
 		initFixedHeader(lenis);
 
+		// 1c. Selector de idioma EN | ES automático con Google Translate invisible
+		initLanguageSwitcher();
+
 		// 2. Menú Sánduche Overlay + Panel de 4 tarjetas (JOURNEYS)
 		initMenuOverlay(lenis);
 
@@ -99,6 +102,141 @@
 		if (lenis && typeof lenis.on === 'function') {
 			lenis.on('scroll', syncHeaderState);
 		}
+	}
+
+	/**
+	 * Selector de idioma EN | ES automático con Google Translate invisible (sin barra superior).
+	 */
+	function initLanguageSwitcher() {
+		var switcher = document.querySelector('.gw-gh-lang');
+		if (!switcher) {
+			return;
+		}
+
+		// Proteger textos de marca y nombres propios contra traducción automática
+		var noTransSelectors = '[data-id="51333e66"], [data-id="94ff9fd"], [data-id="40c85c2"], [data-id="78e51505"], [data-id="fd80fb1"], [data-id="3353134a"], [data-id="324d5b5a"], [data-id="54c519cc"], [data-id="6b8178d1"]';
+		document.querySelectorAll(noTransSelectors).forEach(function (el) {
+			el.classList.add('notranslate');
+			el.setAttribute('translate', 'no');
+		});
+
+		var buttons = switcher.querySelectorAll('.gw-lang-btn');
+		var gtLoaded = false;
+
+		function getCurrentLang() {
+			var m = document.cookie.match(/(?:^|;\s*)googtrans=([^;]+)/);
+			if (m && m[1]) {
+				var val = decodeURIComponent(m[1]);
+				if (/\/es$/i.test(val)) {
+					return 'es';
+				}
+			}
+			return 'en';
+		}
+
+		function setGoogTransCookie(lang) {
+			var host = window.location.hostname || '';
+			var baseDomain = host.replace(/^www\./i, '');
+			if (lang === 'es') {
+				document.cookie = 'googtrans=/en/es; path=/; SameSite=Lax';
+				if (baseDomain && baseDomain.indexOf('.') !== -1) {
+					document.cookie = 'googtrans=/en/es; path=/; domain=.' + baseDomain + '; SameSite=Lax';
+				}
+			} else {
+				var exp = 'max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+				document.cookie = 'googtrans=; path=/; ' + exp;
+				document.cookie = 'googtrans=/en/en; path=/; ' + exp;
+				if (baseDomain && baseDomain.indexOf('.') !== -1) {
+					document.cookie = 'googtrans=; path=/; domain=.' + baseDomain + '; ' + exp;
+					document.cookie = 'googtrans=/en/en; path=/; domain=.' + baseDomain + '; ' + exp;
+				}
+			}
+		}
+
+		function syncButtons(lang) {
+			buttons.forEach(function (btn) {
+				btn.classList.toggle('is-active', btn.getAttribute('data-gw-lang') === lang);
+			});
+		}
+
+		function waitForCombo(attemptsLeft, cb) {
+			var combo = document.querySelector('select.goog-te-combo');
+			if (combo) {
+				cb(combo);
+				return;
+			}
+			if (attemptsLeft <= 0) {
+				cb(null);
+				return;
+			}
+			setTimeout(function () {
+				waitForCombo(attemptsLeft - 1, cb);
+			}, 150);
+		}
+
+		function loadGoogleTranslate(onReady) {
+			if (gtLoaded && window.google && window.google.translate) {
+				waitForCombo(20, onReady || function () {});
+				return;
+			}
+
+			window.gwGoogleTranslateInit = function () {
+				if (window.google && window.google.translate && window.google.translate.TranslateElement) {
+					new window.google.translate.TranslateElement(
+						{
+							pageLanguage: 'en',
+							includedLanguages: 'en,es',
+							autoDisplay: false
+						},
+						'gw_google_translate_el'
+					);
+				}
+				if (onReady) {
+					waitForCombo(20, onReady);
+				}
+			};
+
+			if (!gtLoaded) {
+				gtLoaded = true;
+				var s = document.createElement('script');
+				s.src = 'https://translate.google.com/translate_a/element.js?cb=gwGoogleTranslateInit';
+				s.async = true;
+				document.head.appendChild(s);
+			}
+		}
+
+		var initialLang = getCurrentLang();
+		syncButtons(initialLang);
+		if (initialLang === 'es') {
+			loadGoogleTranslate();
+		}
+
+		buttons.forEach(function (btn) {
+			btn.addEventListener('click', function () {
+				var targetLang = btn.getAttribute('data-gw-lang');
+				if (!targetLang) return;
+
+				var current = getCurrentLang();
+				if (targetLang === current) return;
+
+				if (targetLang === 'es') {
+					setGoogTransCookie('es');
+					syncButtons('es');
+					loadGoogleTranslate(function (combo) {
+						if (combo) {
+							combo.value = 'es';
+							combo.dispatchEvent(new Event('change'));
+						} else {
+							window.location.reload();
+						}
+					});
+				} else {
+					setGoogTransCookie('en');
+					syncButtons('en');
+					window.location.reload();
+				}
+			});
+		});
 	}
 
 	/**
@@ -208,38 +346,120 @@
 		});
 		var footerEl = document.querySelector('[data-id="28221e0a"], .elementor-element-28221e0a, .gw-footer-scene, .g-1a0a9f6');
 
-		function animateJourneyBandsInScene(scene) {
-			if (!scene || scene.dataset.gwJourneyAnimated === '1') return;
-			var bands = scene.querySelectorAll('.gw-journey-band, .g-94d1e9f');
-			if (!bands.length) return;
-			scene.dataset.gwJourneyAnimated = '1';
+		var ratingTween = null;
+		var countTween = null;
 
-			var contents = scene.querySelectorAll('.gw-journey-content, .g-04a6590');
-			if (contents.length) {
-				gsap.fromTo(
-					contents,
-					{ y: 22, opacity: 0 },
-					{
-						y: 0,
-						opacity: 1,
-						duration: 0.65,
-						stagger: 0.14,
-						ease: 'power3.out'
-					}
-				);
+		function getJourneySceneParts(scene) {
+			return {
+				bands: scene ? scene.querySelectorAll('.gw-journey-band, .g-94d1e9f') : [],
+				photos: scene ? scene.querySelectorAll('.gw-journey-photo, .g-f3be2a4') : [],
+				leftCols: scene ? scene.querySelectorAll('.gw-journey-content > :first-child, .g-04a6590 > :first-child') : [],
+				rightItems: scene ? scene.querySelectorAll('.gw-journey-content > :last-child > *, .g-04a6590 > :last-child > *') : []
+			};
+		}
+
+		function resetSceneReveal(scene) {
+			if (!scene) return;
+			var j = getJourneySceneParts(scene);
+			if (j.bands.length) {
+				gsap.killTweensOf(j.leftCols);
+				gsap.killTweensOf(j.rightItems);
+				if (j.leftCols.length) gsap.set(j.leftCols, { x: -24, opacity: 0 });
+				if (j.rightItems.length) gsap.set(j.rightItems, { x: 24, opacity: 0 });
+				return;
 			}
 
-			var photos = scene.querySelectorAll('.gw-journey-photo, .g-f3be2a4');
-			if (photos.length) {
+			var sceneId = scene.getAttribute('data-id');
+			if (sceneId === '29d2969a' || scene.querySelector('[data-id="6d8a8986"]')) {
+				var vIcon = document.querySelector('[data-id="322de734"]');
+				if (vIcon) vIcon.classList.remove('gw-verified-pulse');
+				return;
+			}
+
+			var genTargets = scene.querySelectorAll('[data-id="1b06af4d"] > *, [data-id="244f8fc0"] > *, [data-id="46c917e3"] > *, [data-id="37923d7e"] > *, [data-id="16d5aeb9"], [data-id="4b57cfd2"], [data-id="16f6b2f9"], [data-id="1fcf7a66"], [data-id="12a8952f"] > *');
+			if (!genTargets.length && (scene.classList.contains('gw-footer-curtain') || scene.classList.contains('gw-footer-scene') || scene.classList.contains('g-1a0a9f6'))) {
+				genTargets = scene.firstElementChild ? scene.firstElementChild.children : [];
+			}
+			if (genTargets && genTargets.length) {
+				gsap.killTweensOf(genTargets);
+				gsap.set(genTargets, { y: 18, opacity: 0 });
+			}
+		}
+
+		function playSceneReveal(scene) {
+			if (!scene) return;
+			var j = getJourneySceneParts(scene);
+			if (j.bands.length) {
+				gsap.killTweensOf(j.photos);
+				gsap.killTweensOf(j.leftCols);
+				gsap.killTweensOf(j.rightItems);
+
+				if (j.photos.length) {
+					gsap.fromTo(
+						j.photos,
+						{ scale: 1.08 },
+						{ scale: 1, duration: 1.15, stagger: 0.1, ease: 'power2.out', overwrite: 'auto' }
+					);
+				}
+				if (j.leftCols.length) {
+					gsap.fromTo(
+						j.leftCols,
+						{ x: -42, opacity: 0 },
+						{ x: 0, opacity: 1, duration: 0.72, stagger: 0.1, ease: 'power3.out', overwrite: 'auto' }
+					);
+				}
+				if (j.rightItems.length) {
+					gsap.fromTo(
+						j.rightItems,
+						{ x: 38, opacity: 0 },
+						{ x: 0, opacity: 1, duration: 0.68, stagger: 0.08, delay: 0.12, ease: 'power3.out', overwrite: 'auto' }
+					);
+				}
+				return;
+			}
+
+			var sceneId = scene.getAttribute('data-id');
+			if (sceneId === '29d2969a' || scene.querySelector('[data-id="6d8a8986"]')) {
+				triggerReviewsAnimation();
+				return;
+			}
+
+			if (sceneId === '37582863') {
+				var homeHeroEls = scene.querySelectorAll('[data-id="aa45c58"], [data-id="66928e3"], [data-id="6e6c0cd3"]');
+				if (homeHeroEls.length) {
+					gsap.killTweensOf(homeHeroEls);
+					gsap.fromTo(
+						homeHeroEls,
+						{ y: 18, opacity: 0 },
+						{ y: 0, opacity: 1, duration: 0.65, stagger: 0.08, ease: 'power3.out', overwrite: 'auto' }
+					);
+				}
+				return;
+			}
+
+			if (sceneId === '893cc79') {
+				var jHeroPhotos = scene.querySelectorAll('.gw-journey-photo, .g-f3be2a4');
+				var jHeroItems = scene.querySelectorAll('[data-id="46c917e3"] > *, [data-id="37923d7e"] > *');
+				if (jHeroPhotos.length) {
+					gsap.fromTo(jHeroPhotos, { scale: 1.06 }, { scale: 1, duration: 1.4, ease: 'power2.out', overwrite: 'auto' });
+				}
+				if (jHeroItems.length) {
+					gsap.killTweensOf(jHeroItems);
+					gsap.fromTo(jHeroItems, { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.68, stagger: 0.09, ease: 'power3.out', overwrite: 'auto' });
+				}
+				return;
+			}
+
+			var items = scene.querySelectorAll('[data-id="1b06af4d"] > *, [data-id="244f8fc0"] > *, [data-id="16d5aeb9"], [data-id="4b57cfd2"], [data-id="16f6b2f9"], [data-id="1fcf7a66"], [data-id="12a8952f"] > *');
+			if (!items.length && (scene.classList.contains('gw-footer-curtain') || scene.classList.contains('gw-footer-scene') || scene.classList.contains('g-1a0a9f6'))) {
+				items = scene.firstElementChild ? scene.firstElementChild.children : [];
+			}
+			if (items && items.length) {
+				gsap.killTweensOf(items);
 				gsap.fromTo(
-					photos,
-					{ scale: 1.07 },
-					{
-						scale: 1,
-						duration: 1.15,
-						stagger: 0.1,
-						ease: 'power2.out'
-					}
+					items,
+					{ y: 24, opacity: 0 },
+					{ y: 0, opacity: 1, duration: 0.68, stagger: 0.1, ease: 'power3.out', overwrite: 'auto' }
 				);
 			}
 		}
@@ -287,7 +507,7 @@
 			}
 
 			if (allScenes[0]) {
-				animateJourneyBandsInScene(allScenes[0]);
+				playSceneReveal(allScenes[0]);
 			}
 
 			if (footerEl && allScenes[0] && window.innerWidth >= 1025) {
@@ -303,6 +523,7 @@
 
 				state.scenes = [allScenes[0], footerEl];
 				state.desktopOffsets = [0, 1];
+				var lastSingleIdx = 0;
 
 				var singleTl = gsap.timeline({
 					scrollTrigger: {
@@ -314,8 +535,13 @@
 						scrub: 0.9,
 						anticipatePin: 1,
 						onUpdate: function (self) {
+							var activeSingle = self.progress < 0.48 ? 0 : 1;
+							if (activeSingle !== lastSingleIdx) {
+								lastSingleIdx = activeSingle;
+								playSceneReveal(state.scenes[activeSingle]);
+							}
 							if (state.setDotCallback) {
-								state.setDotCallback(self.progress < 0.5 ? 0 : 1);
+								state.setDotCallback(activeSingle);
 							}
 						}
 					}
@@ -372,16 +598,13 @@
 			});
 		}
 
-		var reviewsAnimated = false;
 		function triggerReviewsAnimation() {
-			if (reviewsAnimated) return;
-			reviewsAnimated = true;
-
 			var ratingEl = document.querySelector('[data-id="6d8a8986"]');
 			var ratingTarget = ratingEl ? (ratingEl.querySelector('p') || ratingEl) : null;
 			if (ratingTarget) {
+				if (ratingTween) ratingTween.kill();
 				var ratingCounter = { val: 0 };
-				gsap.to(ratingCounter, {
+				ratingTween = gsap.to(ratingCounter, {
 					val: 4.9,
 					duration: 1.2,
 					ease: 'power2.out',
@@ -394,8 +617,9 @@
 			var countEl = document.querySelector('[data-id="189dae41"]');
 			var countTarget = countEl ? (countEl.querySelector('p') || countEl) : null;
 			if (countTarget) {
+				if (countTween) countTween.kill();
 				var countCounter = { val: 0 };
-				gsap.to(countCounter, {
+				countTween = gsap.to(countCounter, {
 					val: 127,
 					duration: 1.3,
 					ease: 'power2.out',
@@ -407,6 +631,7 @@
 
 			var stars = document.querySelectorAll('[data-id="55e82289"] > *');
 			if (stars.length) {
+				gsap.killTweensOf(stars);
 				gsap.fromTo(
 					stars,
 					{ scale: 0, opacity: 0, rotation: -18 },
@@ -416,13 +641,16 @@
 						rotation: 0,
 						duration: 0.45,
 						stagger: 0.08,
-						ease: 'back.out(2.2)'
+						ease: 'back.out(2.2)',
+						overwrite: 'auto'
 					}
 				);
 			}
 
 			var verifiedIcon = document.querySelector('[data-id="322de734"]');
 			if (verifiedIcon) {
+				gsap.killTweensOf(verifiedIcon);
+				verifiedIcon.classList.remove('gw-verified-pulse');
 				gsap.fromTo(
 					verifiedIcon,
 					{ scale: 0, rotation: -25, opacity: 0 },
@@ -433,6 +661,7 @@
 						duration: 0.65,
 						delay: 0.35,
 						ease: 'back.out(2)',
+						overwrite: 'auto',
 						onComplete: function () {
 							verifiedIcon.classList.add('gw-verified-pulse');
 						}
@@ -442,6 +671,7 @@
 
 			var reviewCards = document.querySelectorAll('[data-id="5050a2d8"], [data-id="127ea8ca"], [data-id="6100e690"]');
 			if (reviewCards.length) {
+				gsap.killTweensOf(reviewCards);
 				gsap.fromTo(
 					reviewCards,
 					{ y: 28, opacity: 0 },
@@ -451,13 +681,14 @@
 						duration: 0.65,
 						stagger: 0.12,
 						delay: 0.2,
-						ease: 'power3.out'
+						ease: 'power3.out',
+						overwrite: 'auto'
 					}
 				);
 			}
 		}
 
-		// Móvil / Tablet: flujo vertical limpio sin pin
+		// Móvil / Tablet: flujo vertical limpio sin pin (con animaciones repetibles al subir y bajar)
 		if (window.innerWidth < 1025) {
 			if (pillarsWrap) {
 				ScrollTrigger.create({
@@ -518,24 +749,23 @@
 				mObs.observe(mobileIguanaScene);
 			}
 
-			if (allScenes[3]) {
-				ScrollTrigger.create({
-					trigger: allScenes[3],
-					start: 'top 78%',
-					once: true,
-					onEnter: triggerReviewsAnimation
-				});
-			}
-
 			allScenes.forEach(function (scene) {
-				if (scene.querySelector('.gw-journey-band, .g-94d1e9f')) {
+				if (pillarsWrap && scene === pillarsWrap) return;
+				var isJourneyOrRevealed = !!(
+					scene.querySelector('.gw-journey-band, .g-94d1e9f') ||
+					scene.querySelector('[data-id="6d8a8986"]') ||
+					scene.getAttribute('data-id') === '7ccbb6a0' ||
+					scene.getAttribute('data-id') === '1e464eb1'
+				);
+				if (isJourneyOrRevealed) {
 					ScrollTrigger.create({
 						trigger: scene,
-						start: 'top 78%',
-						once: true,
-						onEnter: function () {
-							animateJourneyBandsInScene(scene);
-						}
+						start: 'top 80%',
+						end: 'bottom 18%',
+						onEnter: function () { playSceneReveal(scene); },
+						onEnterBack: function () { playSceneReveal(scene); },
+						onLeave: function () { resetSceneReveal(scene); },
+						onLeaveBack: function () { resetSceneReveal(scene); }
 					});
 				}
 			});
@@ -592,11 +822,12 @@
 			var enterThresholds = [0];
 			segments.forEach(function (seg) {
 				genOffsets.push(seg.index === totalCurtains - 1 ? 1 : seg.end / totalUnits);
-				enterThresholds.push(seg.start / totalUnits + 0.01);
+				enterThresholds.push((seg.start + 0.18) / totalUnits);
 			});
 			state.desktopOffsets = genOffsets;
 
-			animateJourneyBandsInScene(curtains[0]);
+			var lastGenIdx = 0;
+			playSceneReveal(curtains[0]);
 
 			var genTl = gsap.timeline({
 				scrollTrigger: {
@@ -614,8 +845,12 @@
 						for (var k = 1; k < enterThresholds.length; k++) {
 							if (p >= enterThresholds[k]) {
 								activeIdx = k;
-								animateJourneyBandsInScene(curtains[k]);
 							}
+						}
+
+						if (activeIdx !== lastGenIdx) {
+							lastGenIdx = activeIdx;
+							playSceneReveal(curtains[activeIdx]);
 						}
 
 						if (state.setDotCallback) {
@@ -637,10 +872,14 @@
 
 		// Caso B: Escenario Maestro Home (5 cortinas: Hero, Pilares, Iguana, Reviews, Footer)
 		state.desktopOffsets = [0, 0.20, 0.66, 0.86, 1.0];
+		var lastHomeIdx = 0;
 
 		var heroScene = allScenes[0];
 		var heroVideo = heroScene ? heroScene.querySelector('video, .elementor-background-video-container') : null;
 		var heroVideoEl = heroScene ? heroScene.querySelector('video') : null;
+		if (heroScene) {
+			playSceneReveal(heroScene);
+		}
 
 		var iguanaBg = document.querySelector('.gw-parallax-bg, .g-f7a815f');
 		if (iguanaBg) {
@@ -708,17 +947,23 @@
 						}
 					}
 
-					if (p >= 0.75) {
-						triggerReviewsAnimation();
+					var homeActiveIdx = 0;
+					if (p < 0.10) homeActiveIdx = 0;
+					else if (p < 0.56) homeActiveIdx = 1;
+					else if (p < 0.77) homeActiveIdx = 2;
+					else if (p < 0.93) homeActiveIdx = 3;
+					else homeActiveIdx = 4;
+
+					if (homeActiveIdx !== lastHomeIdx) {
+						lastHomeIdx = homeActiveIdx;
+						if (homeActiveIdx !== 1 && curtains[homeActiveIdx]) {
+							playSceneReveal(curtains[homeActiveIdx]);
+						}
 					}
 
 					// Actualizar indicador lateral de escenas
 					if (state.setDotCallback) {
-						if (p < 0.10) state.setDotCallback(0);
-						else if (p < 0.56) state.setDotCallback(1);
-						else if (p < 0.78) state.setDotCallback(2);
-						else if (p < 0.94) state.setDotCallback(3);
-						else state.setDotCallback(4);
+						state.setDotCallback(homeActiveIdx);
 					}
 				}
 			}
